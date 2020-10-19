@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>759</width>
-    <height>585</height>
+    <width>1501</width>
+    <height>687</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -21,7 +21,37 @@
     <item row="0" column="0">
      <layout class="QVBoxLayout" name="verticalLayout_2">
       <item>
-       <widget class="QListWidget" name="listWidget"/>
+       <widget class="QListWidget" name="listWidget">
+        <item>
+         <property name="text">
+          <string>Pos1</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Delay (360s)</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Pos2</string>
+         </property>
+        </item>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="pushButton_2">
+        <property name="text">
+         <string>Delete Selected</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="pushButton">
+        <property name="text">
+         <string>Add Delay</string>
+        </property>
+       </widget>
       </item>
      </layout>
     </item>
@@ -30,9 +60,25 @@
       <item>
        <layout class="QVBoxLayout" name="verticalLayout_3">
         <item>
+         <widget class="QLabel" name="label_2">
+          <property name="text">
+           <string/>
+          </property>
+          <property name="pixmap">
+           <pixmap>media/imsas_small.png</pixmap>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignBottom|Qt::AlignHCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item>
          <widget class="QLabel" name="label">
           <property name="layoutDirection">
            <enum>Qt::LeftToRight</enum>
+          </property>
+          <property name="autoFillBackground">
+           <bool>false</bool>
           </property>
           <property name="text">
            <string>Moving Speed</string>
@@ -56,6 +102,9 @@
          <widget class="QSpinBox" name="speed_textbox">
           <property name="minimum">
            <number>50</number>
+          </property>
+          <property name="maximum">
+           <number>10000</number>
           </property>
          </widget>
         </item>
@@ -110,51 +159,57 @@
         <item row="2" column="2">
          <widget class="QPushButton" name="move_right">
           <property name="text">
-           <string>PushButton</string>
+           <string/>
+          </property>
+          <property name="icon">
+           <iconset>
+            <normaloff>media/arrow_right.png</normaloff>media/arrow_right.png</iconset>
+          </property>
+          <property name="shortcut">
+           <string>Right</string>
+          </property>
+          <property name="flat">
+           <bool>true</bool>
           </property>
          </widget>
         </item>
         <item row="2" column="0">
          <widget class="QPushButton" name="move_left">
           <property name="text">
-           <string>PushButton</string>
+           <string/>
+          </property>
+          <property name="icon">
+           <iconset>
+            <normaloff>media/arrow_left.png</normaloff>media/arrow_left.png</iconset>
+          </property>
+          <property name="shortcut">
+           <string>Left</string>
+          </property>
+          <property name="flat">
+           <bool>true</bool>
           </property>
          </widget>
         </item>
         <item row="2" column="1">
          <widget class="QPushButton" name="pushButton_6">
-          <property name="text">
-           <string>Save Position</string>
-          </property>
-          <property name="flat">
-           <bool>false</bool>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="1">
-         <widget class="QPushButton" name="move_up">
           <property name="tabletTracking">
            <bool>false</bool>
           </property>
+          <property name="whatsThis">
+           <string>Save current position to list</string>
+          </property>
           <property name="text">
-           <string>PushButton</string>
+           <string>Add Position</string>
+          </property>
+          <property name="icon">
+           <iconset>
+            <normaloff>media/enter.png</normaloff>media/enter.png</iconset>
+          </property>
+          <property name="shortcut">
+           <string>Return</string>
           </property>
           <property name="flat">
            <bool>false</bool>
-          </property>
-         </widget>
-        </item>
-        <item row="3" column="1">
-         <widget class="QPushButton" name="move_down">
-          <property name="text">
-           <string>PushButton</string>
-          </property>
-         </widget>
-        </item>
-        <item row="0" column="0">
-         <widget class="QCheckBox" name="reverse_x">
-          <property name="text">
-           <string>Reverse X</string>
           </property>
          </widget>
         </item>
@@ -165,10 +220,113 @@
           </property>
          </widget>
         </item>
+        <item row="1" column="1">
+         <widget class="QPushButton" name="move_up">
+          <property name="tabletTracking">
+           <bool>false</bool>
+          </property>
+          <property name="text">
+           <string/>
+          </property>
+          <property name="icon">
+           <iconset>
+            <normaloff>media/arrow_up.png</normaloff>media/arrow_up.png</iconset>
+          </property>
+          <property name="shortcut">
+           <string>Up</string>
+          </property>
+          <property name="checkable">
+           <bool>false</bool>
+          </property>
+          <property name="flat">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="0">
+         <widget class="QCheckBox" name="reverse_x">
+          <property name="text">
+           <string>Reverse X</string>
+          </property>
+         </widget>
+        </item>
         <item row="0" column="2">
          <widget class="QCheckBox" name="switchxy">
           <property name="text">
            <string>Switch X Y</string>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="1">
+         <widget class="QPushButton" name="move_down">
+          <property name="text">
+           <string/>
+          </property>
+          <property name="icon">
+           <iconset>
+            <normaloff>media/arrow_down.png</normaloff>media/arrow_down.png</iconset>
+          </property>
+          <property name="shortcut">
+           <string>Down</string>
+          </property>
+          <property name="flat">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="0">
+         <widget class="QPushButton" name="move_up_left">
+          <property name="text">
+           <string/>
+          </property>
+          <property name="icon">
+           <iconset>
+            <normaloff>media/arrow_up_left.png</normaloff>media/arrow_up_left.png</iconset>
+          </property>
+          <property name="flat">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="2">
+         <widget class="QPushButton" name="move_up_right">
+          <property name="text">
+           <string/>
+          </property>
+          <property name="icon">
+           <iconset>
+            <normaloff>media/arrow_up_right.png</normaloff>media/arrow_up_right.png</iconset>
+          </property>
+          <property name="flat">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="0">
+         <widget class="QPushButton" name="move_down_left">
+          <property name="text">
+           <string/>
+          </property>
+          <property name="icon">
+           <iconset>
+            <normaloff>media/arrow_down_left.png</normaloff>media/arrow_down_left.png</iconset>
+          </property>
+          <property name="flat">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="2">
+         <widget class="QPushButton" name="pushButton_5">
+          <property name="text">
+           <string/>
+          </property>
+          <property name="icon">
+           <iconset>
+            <normaloff>media/arrow_down_right.png</normaloff>media/arrow_down_right.png</iconset>
+          </property>
+          <property name="flat">
+           <bool>true</bool>
           </property>
          </widget>
         </item>
@@ -187,7 +345,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>759</width>
+     <width>1501</width>
      <height>25</height>
     </rect>
    </property>
@@ -198,11 +356,7 @@
     <addaction name="actionSave"/>
     <addaction name="actionNew"/>
     <addaction name="actionOpen"/>
-   </widget>
-   <widget class="QMenu" name="menuEdit">
-    <property name="title">
-     <string>Edit</string>
-    </property>
+    <addaction name="actionClose"/>
    </widget>
    <widget class="QMenu" name="menuConnect">
     <property name="title">
@@ -213,7 +367,6 @@
     <addaction name="actionConnect_Y"/>
    </widget>
    <addaction name="menuFile"/>
-   <addaction name="menuEdit"/>
    <addaction name="menuConnect"/>
   </widget>
   <action name="actionSave">
@@ -250,7 +403,64 @@
     <string>Connect Y</string>
    </property>
   </action>
+  <action name="actionClose">
+   <property name="text">
+    <string>Close</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+X</string>
+   </property>
+  </action>
  </widget>
  <resources/>
- <connections/>
+ <connections>
+  <connection>
+   <sender>speed_slider</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>speed_textbox</receiver>
+   <slot>setValue(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>768</x>
+     <y>163</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>773</x>
+     <y>180</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>speed_textbox</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>speed_slider</receiver>
+   <slot>setValue(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>852</x>
+     <y>186</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>880</x>
+     <y>152</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionClose</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>close()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>502</x>
+     <y>321</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
 </ui>
