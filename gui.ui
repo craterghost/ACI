@@ -19,9 +19,9 @@
   <widget class="QWidget" name="centralwidget">
    <layout class="QGridLayout" name="gridLayout_2">
     <item row="0" column="0">
-     <layout class="QVBoxLayout" name="verticalLayout_2">
+     <layout class="QVBoxLayout" name="layout_leftside">
       <item>
-       <widget class="QListWidget" name="listWidget">
+       <widget class="QListWidget" name="list_pos">
         <item>
          <property name="text">
           <string>Pos1</string>
@@ -40,27 +40,74 @@
        </widget>
       </item>
       <item>
-       <widget class="QPushButton" name="pushButton_2">
+       <widget class="QPushButton" name="button_delete_pos">
         <property name="text">
          <string>Delete Selected</string>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QPushButton" name="pushButton">
-        <property name="text">
-         <string>Add Delay</string>
-        </property>
-       </widget>
+       <layout class="QHBoxLayout" name="layout_delay">
+        <item>
+         <widget class="QDoubleSpinBox" name="spinbox_delay_length"/>
+        </item>
+        <item>
+         <widget class="QLabel" name="label_delay">
+          <property name="text">
+           <string>Seconds</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="button_add_delay">
+          <property name="toolTip">
+           <string>Shortcut: D</string>
+          </property>
+          <property name="text">
+           <string>Add Delay</string>
+          </property>
+          <property name="shortcut">
+           <string>D</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="layout_reps">
+        <item>
+         <widget class="QSpinBox" name="spinbox_rep_count"/>
+        </item>
+        <item>
+         <widget class="QLabel" name="label">
+          <property name="text">
+           <string>Repetitions</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="Start">
+          <property name="statusTip">
+           <string>Shortcut: Space</string>
+          </property>
+          <property name="text">
+           <string>Start</string>
+          </property>
+          <property name="shortcut">
+           <string>Space</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
       </item>
      </layout>
     </item>
     <item row="0" column="3">
-     <layout class="QVBoxLayout" name="verticalLayout_4">
+     <layout class="QVBoxLayout" name="layout_rightside">
       <item>
-       <layout class="QVBoxLayout" name="verticalLayout_3">
+       <layout class="QVBoxLayout" name="layout_speed_ui">
         <item>
-         <widget class="QLabel" name="label_2">
+         <widget class="QLabel" name="label_imsas_logo">
           <property name="text">
            <string/>
           </property>
@@ -73,7 +120,7 @@
          </widget>
         </item>
         <item>
-         <widget class="QLabel" name="label">
+         <widget class="QLabel" name="label_moving_speed">
           <property name="layoutDirection">
            <enum>Qt::LeftToRight</enum>
           </property>
@@ -109,9 +156,9 @@
          </widget>
         </item>
         <item>
-         <layout class="QHBoxLayout" name="horizontalLayout_2">
+         <layout class="QHBoxLayout" name="layout_column_speed__ui_buttons">
           <item>
-           <widget class="QPushButton" name="speed_slowest">
+           <widget class="QPushButton" name="button_speed_slowest">
             <property name="whatsThis">
              <string>50hz </string>
             </property>
@@ -121,7 +168,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QPushButton" name="speed_slow">
+           <widget class="QPushButton" name="button_speed_slow">
             <property name="whatsThis">
              <string>1kHz</string>
             </property>
@@ -131,7 +178,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QPushButton" name="speed_fast">
+           <widget class="QPushButton" name="button_speed_fast">
             <property name="whatsThis">
              <string>5kHz</string>
             </property>
@@ -141,7 +188,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QPushButton" name="speed_fastest">
+           <widget class="QPushButton" name="button_speed_fastest">
             <property name="whatsThis">
              <string>10kHz</string>
             </property>
@@ -155,9 +202,9 @@
        </layout>
       </item>
       <item>
-       <layout class="QGridLayout" name="gridLayout_6">
+       <layout class="QGridLayout" name="layout_grid_position">
         <item row="2" column="2">
-         <widget class="QPushButton" name="move_right">
+         <widget class="QPushButton" name="button_move_right">
           <property name="text">
            <string/>
           </property>
@@ -174,7 +221,7 @@
          </widget>
         </item>
         <item row="2" column="0">
-         <widget class="QPushButton" name="move_left">
+         <widget class="QPushButton" name="button_move_left">
           <property name="text">
            <string/>
           </property>
@@ -191,9 +238,15 @@
          </widget>
         </item>
         <item row="2" column="1">
-         <widget class="QPushButton" name="pushButton_6">
+         <widget class="QPushButton" name="button_save_pos">
           <property name="tabletTracking">
            <bool>false</bool>
+          </property>
+          <property name="toolTip">
+           <string>Shortcut: Return, Enter</string>
+          </property>
+          <property name="statusTip">
+           <string/>
           </property>
           <property name="whatsThis">
            <string>Save current position to list</string>
@@ -221,7 +274,7 @@
          </widget>
         </item>
         <item row="1" column="1">
-         <widget class="QPushButton" name="move_up">
+         <widget class="QPushButton" name="button_move_up">
           <property name="tabletTracking">
            <bool>false</bool>
           </property>
@@ -258,7 +311,10 @@
          </widget>
         </item>
         <item row="3" column="1">
-         <widget class="QPushButton" name="move_down">
+         <widget class="QPushButton" name="button_move_down">
+          <property name="whatsThis">
+           <string>Move the stage at a negative Y direction</string>
+          </property>
           <property name="text">
            <string/>
           </property>
@@ -274,68 +330,16 @@
           </property>
          </widget>
         </item>
-        <item row="1" column="0">
-         <widget class="QPushButton" name="move_up_left">
-          <property name="text">
-           <string/>
-          </property>
-          <property name="icon">
-           <iconset>
-            <normaloff>media/arrow_up_left.png</normaloff>media/arrow_up_left.png</iconset>
-          </property>
-          <property name="flat">
-           <bool>true</bool>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="2">
-         <widget class="QPushButton" name="move_up_right">
-          <property name="text">
-           <string/>
-          </property>
-          <property name="icon">
-           <iconset>
-            <normaloff>media/arrow_up_right.png</normaloff>media/arrow_up_right.png</iconset>
-          </property>
-          <property name="flat">
-           <bool>true</bool>
-          </property>
-         </widget>
-        </item>
-        <item row="3" column="0">
-         <widget class="QPushButton" name="move_down_left">
-          <property name="text">
-           <string/>
-          </property>
-          <property name="icon">
-           <iconset>
-            <normaloff>media/arrow_down_left.png</normaloff>media/arrow_down_left.png</iconset>
-          </property>
-          <property name="flat">
-           <bool>true</bool>
-          </property>
-         </widget>
-        </item>
-        <item row="3" column="2">
-         <widget class="QPushButton" name="pushButton_5">
-          <property name="text">
-           <string/>
-          </property>
-          <property name="icon">
-           <iconset>
-            <normaloff>media/arrow_down_right.png</normaloff>media/arrow_down_right.png</iconset>
-          </property>
-          <property name="flat">
-           <bool>true</bool>
-          </property>
-         </widget>
-        </item>
        </layout>
       </item>
      </layout>
     </item>
     <item row="0" column="2">
-     <widget class="QCalendarWidget" name="calendarWidget"/>
+     <widget class="QLabel" name="label_spacer_for_api">
+      <property name="text">
+       <string>Spacer forS</string>
+      </property>
+     </widget>
     </item>
    </layout>
   </widget>
@@ -396,6 +400,9 @@
   <action name="actionConnect_X">
    <property name="text">
     <string>Connect X</string>
+   </property>
+   <property name="whatsThis">
+    <string/>
    </property>
   </action>
   <action name="actionConnect_Y">
