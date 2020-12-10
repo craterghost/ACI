@@ -75,10 +75,27 @@
          <property name="text">
           <string>Pos1</string>
          </property>
+         <property name="icon">
+          <iconset>
+           <normaloff>media/waypoint.png</normaloff>media/waypoint.png</iconset>
+         </property>
         </item>
         <item>
          <property name="text">
           <string>Delay (360s)</string>
+         </property>
+         <property name="background">
+          <brush brushstyle="NoBrush">
+           <color alpha="255">
+            <red>255</red>
+            <green>255</green>
+            <blue>255</blue>
+           </color>
+          </brush>
+         </property>
+         <property name="icon">
+          <iconset>
+           <normaloff>media/clock.png</normaloff>media/clock.png</iconset>
          </property>
         </item>
         <item>
