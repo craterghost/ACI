@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1457</width>
-    <height>724</height>
+    <width>1734</width>
+    <height>702</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -19,6 +19,9 @@
   <widget class="QWidget" name="centralwidget">
    <property name="layoutDirection">
     <enum>Qt::LeftToRight</enum>
+   </property>
+   <property name="styleSheet">
+    <string notr="true"/>
    </property>
    <layout class="QGridLayout" name="layout_grid_center">
     <item row="0" column="0">
@@ -114,14 +117,149 @@
       </item>
      </layout>
     </item>
+    <item row="0" column="2">
+     <widget class="QLabel" name="spacer_shear_api">
+      <property name="text">
+       <string/>
+      </property>
+      <property name="pixmap">
+       <pixmap>media/shear.jpeg</pixmap>
+      </property>
+     </widget>
+    </item>
     <item row="0" column="3">
      <layout class="QVBoxLayout" name="layout_rightside">
+      <item>
+       <layout class="QHBoxLayout" name="hor_1">
+        <property name="bottomMargin">
+         <number>50</number>
+        </property>
+        <item>
+         <layout class="QVBoxLayout" name="verticalLayout">
+          <item>
+           <widget class="QLabel" name="label_axis_settings">
+            <property name="maximumSize">
+             <size>
+              <width>16777215</width>
+              <height>50</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>Axis Settings</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout">
+            <property name="bottomMargin">
+             <number>0</number>
+            </property>
+            <item>
+             <widget class="QCheckBox" name="check_switchxy">
+              <property name="text">
+               <string>Switch X Y</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QCheckBox" name="check_reverse_y">
+              <property name="minimumSize">
+               <size>
+                <width>0</width>
+                <height>0</height>
+               </size>
+              </property>
+              <property name="text">
+               <string>Reverse Y</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QCheckBox" name="check_reverse_x">
+              <property name="text">
+               <string>Reverse X</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <widget class="QLabel" name="label_sia">
+          <property name="text">
+           <string/>
+          </property>
+          <property name="pixmap">
+           <pixmap>media/SIA.png</pixmap>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
       <item>
        <layout class="QGridLayout" name="gridLayout">
         <property name="sizeConstraint">
          <enum>QLayout::SetFixedSize</enum>
         </property>
-        <item row="4" column="0">
+        <property name="bottomMargin">
+         <number>50</number>
+        </property>
+        <item row="8" column="1">
+         <layout class="QHBoxLayout" name="horizontalLayout_5">
+          <item>
+           <widget class="QPushButton" name="button_smallest">
+            <property name="text">
+             <string>smallest</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="button_small">
+            <property name="text">
+             <string>small</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="button_medium">
+            <property name="text">
+             <string>medium</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="button_big">
+            <property name="text">
+             <string>big</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item row="3" column="0">
+         <widget class="QLabel" name="label_moving_speed">
+          <property name="maximumSize">
+           <size>
+            <width>16777215</width>
+            <height>44</height>
+           </size>
+          </property>
+          <property name="layoutDirection">
+           <enum>Qt::LeftToRight</enum>
+          </property>
+          <property name="autoFillBackground">
+           <bool>false</bool>
+          </property>
+          <property name="text">
+           <string>Moving Speed</string>
+          </property>
+         </widget>
+        </item>
+        <item row="8" column="0">
          <layout class="QHBoxLayout" name="layout_column_speed__ui_buttons">
           <property name="sizeConstraint">
            <enum>QLayout::SetDefaultConstraint</enum>
@@ -171,7 +309,24 @@
           </item>
          </layout>
         </item>
+        <item row="6" column="1">
+         <widget class="QSlider" name="step_slider">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+         </widget>
+        </item>
+        <item row="4" column="1">
+         <widget class="QSpinBox" name="step_textbox"/>
+        </item>
         <item row="2" column="0">
+         <widget class="QRadioButton" name="xor_move_fluently">
+          <property name="text">
+           <string>Move Fluently</string>
+          </property>
+         </widget>
+        </item>
+        <item row="6" column="0">
          <widget class="QSlider" name="speed_slider">
           <property name="minimum">
            <number>50</number>
@@ -184,7 +339,14 @@
           </property>
          </widget>
         </item>
-        <item row="3" column="0">
+        <item row="3" column="1">
+         <widget class="QLabel" name="label_step_size">
+          <property name="text">
+           <string>Step Size</string>
+          </property>
+         </widget>
+        </item>
+        <item row="4" column="0">
          <widget class="QSpinBox" name="speed_textbox">
           <property name="minimum">
            <number>50</number>
@@ -194,76 +356,10 @@
           </property>
          </widget>
         </item>
-        <item row="1" column="0">
-         <widget class="QLabel" name="label_moving_speed">
-          <property name="maximumSize">
-           <size>
-            <width>16777215</width>
-            <height>44</height>
-           </size>
-          </property>
-          <property name="layoutDirection">
-           <enum>Qt::LeftToRight</enum>
-          </property>
-          <property name="autoFillBackground">
-           <bool>false</bool>
-          </property>
+        <item row="2" column="1">
+         <widget class="QRadioButton" name="xor_move_steps">
           <property name="text">
-           <string>Moving Speed</string>
-          </property>
-         </widget>
-        </item>
-        <item row="0" column="0">
-         <layout class="QHBoxLayout" name="horizontalLayout_3">
-          <property name="bottomMargin">
-           <number>50</number>
-          </property>
-          <item>
-           <widget class="QLabel" name="label_sia">
-            <property name="text">
-             <string/>
-            </property>
-            <property name="pixmap">
-             <pixmap>media/SIA.png</pixmap>
-            </property>
-            <property name="alignment">
-             <set>Qt::AlignCenter</set>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </item>
-       </layout>
-      </item>
-      <item>
-       <layout class="QHBoxLayout" name="horizontalLayout">
-        <property name="bottomMargin">
-         <number>50</number>
-        </property>
-        <item>
-         <widget class="QCheckBox" name="check_switchxy">
-          <property name="text">
-           <string>Switch X Y</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QCheckBox" name="check_reverse_y">
-          <property name="minimumSize">
-           <size>
-            <width>0</width>
-            <height>0</height>
-           </size>
-          </property>
-          <property name="text">
-           <string>Reverse Y</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QCheckBox" name="check_reverse_x">
-          <property name="text">
-           <string>Reverse X</string>
+           <string>Move in Steps</string>
           </property>
          </widget>
         </item>
@@ -323,32 +419,32 @@
           </property>
          </widget>
         </item>
-        <item row="2" column="1">
-         <widget class="QPushButton" name="button_save_pos">
-          <property name="tabletTracking">
-           <bool>false</bool>
-          </property>
-          <property name="toolTip">
-           <string/>
+        <item row="3" column="1">
+         <widget class="QPushButton" name="button_move_down">
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>60</height>
+           </size>
           </property>
           <property name="statusTip">
-           <string>Shortcut: Enter</string>
+           <string>Shortcut: Arrow Down</string>
           </property>
           <property name="whatsThis">
-           <string>Save current position to list</string>
+           <string/>
           </property>
           <property name="text">
-           <string>Add Position</string>
+           <string/>
           </property>
           <property name="icon">
            <iconset>
-            <normaloff>media/enter.png</normaloff>media/enter.png</iconset>
+            <normaloff>media/arrow_down.png</normaloff>media/arrow_down.png</iconset>
           </property>
           <property name="shortcut">
-           <string>Return</string>
+           <string>Down</string>
           </property>
           <property name="flat">
-           <bool>false</bool>
+           <bool>true</bool>
           </property>
          </widget>
         </item>
@@ -381,48 +477,38 @@
           </property>
          </widget>
         </item>
-        <item row="3" column="1">
-         <widget class="QPushButton" name="button_move_down">
-          <property name="minimumSize">
-           <size>
-            <width>0</width>
-            <height>60</height>
-           </size>
+        <item row="2" column="1">
+         <widget class="QPushButton" name="button_save_pos">
+          <property name="tabletTracking">
+           <bool>false</bool>
+          </property>
+          <property name="toolTip">
+           <string/>
           </property>
           <property name="statusTip">
-           <string>Shortcut: Arrow Down</string>
+           <string>Shortcut: Enter</string>
           </property>
           <property name="whatsThis">
-           <string/>
+           <string>Save current position to list</string>
           </property>
           <property name="text">
-           <string/>
+           <string>Add Position</string>
           </property>
           <property name="icon">
            <iconset>
-            <normaloff>media/arrow_down.png</normaloff>media/arrow_down.png</iconset>
+            <normaloff>media/enter.png</normaloff>media/enter.png</iconset>
           </property>
           <property name="shortcut">
-           <string>Down</string>
+           <string>Return</string>
           </property>
           <property name="flat">
-           <bool>true</bool>
+           <bool>false</bool>
           </property>
          </widget>
         </item>
        </layout>
       </item>
      </layout>
-    </item>
-    <item row="0" column="2">
-     <widget class="QLabel" name="spacer_shear_api">
-      <property name="text">
-       <string/>
-      </property>
-      <property name="pixmap">
-       <pixmap>media/shear.jpeg</pixmap>
-      </property>
-     </widget>
     </item>
    </layout>
   </widget>
@@ -432,7 +518,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1457</width>
+     <width>1734</width>
      <height>25</height>
     </rect>
    </property>
@@ -505,38 +591,6 @@
  <resources/>
  <connections>
   <connection>
-   <sender>speed_slider</sender>
-   <signal>valueChanged(int)</signal>
-   <receiver>speed_textbox</receiver>
-   <slot>setValue(int)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>768</x>
-     <y>163</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>773</x>
-     <y>180</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>speed_textbox</sender>
-   <signal>valueChanged(int)</signal>
-   <receiver>speed_slider</receiver>
-   <slot>setValue(int)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>852</x>
-     <y>186</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>880</x>
-     <y>152</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>actionClose</sender>
    <signal>triggered()</signal>
    <receiver>MainWindow</receiver>
@@ -549,6 +603,70 @@
     <hint type="destinationlabel">
      <x>502</x>
      <y>321</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>speed_slider</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>speed_textbox</receiver>
+   <slot>setValue(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>1445</x>
+     <y>333</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>1445</x>
+     <y>368</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>speed_textbox</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>speed_slider</receiver>
+   <slot>setValue(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>1445</x>
+     <y>368</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>1445</x>
+     <y>333</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>step_slider</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>step_textbox</receiver>
+   <slot>setValue(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>1552</x>
+     <y>350</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>1552</x>
+     <y>314</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>step_textbox</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>step_slider</receiver>
+   <slot>setValue(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>1552</x>
+     <y>314</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>1552</x>
+     <y>350</y>
     </hint>
    </hints>
   </connection>
