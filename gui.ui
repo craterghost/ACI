@@ -16,6 +16,9 @@
   <property name="autoFillBackground">
    <bool>false</bool>
   </property>
+  <property name="styleSheet">
+   <string notr="true"/>
+  </property>
   <widget class="QWidget" name="centralwidget">
    <property name="layoutDirection">
     <enum>Qt::LeftToRight</enum>
@@ -401,7 +404,7 @@
          <widget class="QPushButton" name="button_move_right">
           <property name="minimumSize">
            <size>
-            <width>0</width>
+            <width>88</width>
             <height>60</height>
            </size>
           </property>
@@ -424,7 +427,7 @@
          <widget class="QPushButton" name="button_move_left">
           <property name="minimumSize">
            <size>
-            <width>0</width>
+            <width>88</width>
             <height>60</height>
            </size>
           </property>
@@ -450,7 +453,7 @@
          <widget class="QPushButton" name="button_move_down">
           <property name="minimumSize">
            <size>
-            <width>0</width>
+            <width>88</width>
             <height>60</height>
            </size>
           </property>
@@ -479,7 +482,7 @@
          <widget class="QPushButton" name="button_move_up">
           <property name="minimumSize">
            <size>
-            <width>0</width>
+            <width>88</width>
             <height>60</height>
            </size>
           </property>
@@ -710,6 +713,22 @@
     <hint type="destinationlabel">
      <x>120</x>
      <y>340</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>button_speed_slowest</sender>
+   <signal>clicked()</signal>
+   <receiver>speed_slider</receiver>
+   <slot>lower()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>1035</x>
+     <y>421</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>1172</x>
+     <y>393</y>
     </hint>
    </hints>
   </connection>
