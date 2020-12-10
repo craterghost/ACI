@@ -130,12 +130,12 @@
     <item row="0" column="3">
      <layout class="QVBoxLayout" name="layout_rightside">
       <item>
-       <layout class="QHBoxLayout" name="hor_1">
+       <layout class="QHBoxLayout" name="layout_sia_logo_axis_settings">
         <property name="bottomMargin">
          <number>50</number>
         </property>
         <item>
-         <layout class="QVBoxLayout" name="verticalLayout">
+         <layout class="QVBoxLayout" name="layout_axis_settings">
           <item>
            <widget class="QLabel" name="label_axis_settings">
             <property name="maximumSize">
@@ -150,7 +150,7 @@
            </widget>
           </item>
           <item>
-           <layout class="QHBoxLayout" name="horizontalLayout">
+           <layout class="QHBoxLayout" name="layout_axis_settings_checkboxes">
             <property name="bottomMargin">
              <number>0</number>
             </property>
@@ -201,7 +201,7 @@
        </layout>
       </item>
       <item>
-       <layout class="QGridLayout" name="gridLayout">
+       <layout class="QGridLayout" name="layout_movement_types">
         <property name="sizeConstraint">
          <enum>QLayout::SetFixedSize</enum>
         </property>
@@ -209,7 +209,7 @@
          <number>50</number>
         </property>
         <item row="8" column="1">
-         <layout class="QHBoxLayout" name="horizontalLayout_5">
+         <layout class="QHBoxLayout" name="layout_step_sizes">
           <item>
            <widget class="QPushButton" name="button_smallest">
             <property name="text">
@@ -260,7 +260,7 @@
          </widget>
         </item>
         <item row="8" column="0">
-         <layout class="QHBoxLayout" name="layout_column_speed__ui_buttons">
+         <layout class="QHBoxLayout" name="layout_speed_buttons">
           <property name="sizeConstraint">
            <enum>QLayout::SetDefaultConstraint</enum>
           </property>
@@ -366,7 +366,7 @@
        </layout>
       </item>
       <item>
-       <layout class="QGridLayout" name="layout_grid_position">
+       <layout class="QGridLayout" name="layout_arrowkeys">
         <property name="sizeConstraint">
          <enum>QLayout::SetNoConstraint</enum>
         </property>
