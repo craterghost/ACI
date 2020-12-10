@@ -432,6 +432,12 @@
            <iconset>
             <normaloff>media/arrow_right.png</normaloff>media/arrow_right.png</iconset>
           </property>
+          <property name="iconSize">
+           <size>
+            <width>40</width>
+            <height>40</height>
+           </size>
+          </property>
           <property name="shortcut">
            <string>Right</string>
           </property>
@@ -457,6 +463,12 @@
           <property name="icon">
            <iconset>
             <normaloff>media/arrow_left.png</normaloff>media/arrow_left.png</iconset>
+          </property>
+          <property name="iconSize">
+           <size>
+            <width>40</width>
+            <height>40</height>
+           </size>
           </property>
           <property name="shortcut">
            <string>Left</string>
@@ -487,6 +499,12 @@
            <iconset>
             <normaloff>media/arrow_down.png</normaloff>media/arrow_down.png</iconset>
           </property>
+          <property name="iconSize">
+           <size>
+            <width>40</width>
+            <height>40</height>
+           </size>
+          </property>
           <property name="shortcut">
            <string>Down</string>
           </property>
@@ -512,6 +530,12 @@
           <property name="icon">
            <iconset>
             <normaloff>media/arrow_up.png</normaloff>media/arrow_up.png</iconset>
+          </property>
+          <property name="iconSize">
+           <size>
+            <width>40</width>
+            <height>40</height>
+           </size>
           </property>
           <property name="shortcut">
            <string>Up</string>
@@ -544,6 +568,12 @@
           <property name="icon">
            <iconset>
             <normaloff>media/enter.png</normaloff>media/enter.png</iconset>
+          </property>
+          <property name="iconSize">
+           <size>
+            <width>40</width>
+            <height>40</height>
+           </size>
           </property>
           <property name="shortcut">
            <string>Return</string>
