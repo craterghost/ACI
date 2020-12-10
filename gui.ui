@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1734</width>
-    <height>702</height>
+    <height>722</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -27,7 +27,47 @@
     <item row="0" column="0">
      <layout class="QVBoxLayout" name="layout_leftside">
       <item>
+       <widget class="QPushButton" name="button_delete_pos">
+        <property name="statusTip">
+         <string>Shortcut: del</string>
+        </property>
+        <property name="text">
+         <string>Delete Selected</string>
+        </property>
+        <property name="shortcut">
+         <string>Del</string>
+        </property>
+       </widget>
+      </item>
+      <item>
        <widget class="QListWidget" name="list_pos">
+        <property name="acceptDrops">
+         <bool>true</bool>
+        </property>
+        <property name="dragEnabled">
+         <bool>true</bool>
+        </property>
+        <property name="dragDropOverwriteMode">
+         <bool>false</bool>
+        </property>
+        <property name="dragDropMode">
+         <enum>QAbstractItemView::InternalMove</enum>
+        </property>
+        <property name="defaultDropAction">
+         <enum>Qt::MoveAction</enum>
+        </property>
+        <property name="alternatingRowColors">
+         <bool>true</bool>
+        </property>
+        <property name="selectionMode">
+         <enum>QAbstractItemView::ExtendedSelection</enum>
+        </property>
+        <property name="layoutMode">
+         <enum>QListView::SinglePass</enum>
+        </property>
+        <property name="viewMode">
+         <enum>QListView::ListMode</enum>
+        </property>
         <item>
          <property name="text">
           <string>Pos1</string>
@@ -43,19 +83,6 @@
           <string>Pos2</string>
          </property>
         </item>
-       </widget>
-      </item>
-      <item>
-       <widget class="QPushButton" name="button_delete_pos">
-        <property name="statusTip">
-         <string>Shortcut: del</string>
-        </property>
-        <property name="text">
-         <string>Delete Selected</string>
-        </property>
-        <property name="shortcut">
-         <string>Del</string>
-        </property>
        </widget>
       </item>
       <item>
@@ -667,6 +694,22 @@
     <hint type="destinationlabel">
      <x>1552</x>
      <y>350</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>button_delete_pos</sender>
+   <signal>clicked()</signal>
+   <receiver>list_pos</receiver>
+   <slot>clearSelection()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>120</x>
+     <y>48</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>120</x>
+     <y>340</y>
     </hint>
    </hints>
   </connection>
