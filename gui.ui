@@ -77,7 +77,7 @@
          </property>
          <property name="icon">
           <iconset>
-           <normaloff>media/waypoint.png</normaloff>media/waypoint.png</iconset>
+           <normaloff>../../../../.designer/backup/media/waypoint.png</normaloff>../../../../.designer/backup/media/waypoint.png</iconset>
          </property>
         </item>
         <item>
@@ -95,7 +95,7 @@
          </property>
          <property name="icon">
           <iconset>
-           <normaloff>media/clock.png</normaloff>media/clock.png</iconset>
+           <normaloff>../../../../.designer/backup/media/clock.png</normaloff>../../../../.designer/backup/media/clock.png</iconset>
          </property>
         </item>
         <item>
@@ -170,7 +170,7 @@
        <string/>
       </property>
       <property name="pixmap">
-       <pixmap>media/shear.jpeg</pixmap>
+       <pixmap>../../../../.designer/backup/media/shear.jpeg</pixmap>
       </property>
      </widget>
     </item>
@@ -195,6 +195,33 @@
              <string>Axis Settings</string>
             </property>
            </widget>
+          </item>
+          <item>
+           <layout class="QHBoxLayout" name="layout_comboBox">
+            <item>
+             <widget class="QComboBox" name="comboBox_x">
+              <property name="statusTip">
+               <string>Connect X Axis</string>
+              </property>
+              <property name="editable">
+               <bool>true</bool>
+              </property>
+              <property name="currentText">
+               <string/>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QComboBox" name="comboBox_y">
+              <property name="statusTip">
+               <string>Connect Y Axis</string>
+              </property>
+              <property name="editable">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+           </layout>
           </item>
           <item>
            <layout class="QHBoxLayout" name="layout_axis_settings_checkboxes">
@@ -238,7 +265,7 @@
            <string/>
           </property>
           <property name="pixmap">
-           <pixmap>media/SIA.png</pixmap>
+           <pixmap>../../../../.designer/backup/media/SIA.png</pixmap>
           </property>
           <property name="alignment">
            <set>Qt::AlignCenter</set>
@@ -430,7 +457,7 @@
           </property>
           <property name="icon">
            <iconset>
-            <normaloff>media/arrow_right.png</normaloff>media/arrow_right.png</iconset>
+            <normaloff>../../../../.designer/backup/media/arrow_right.png</normaloff>../../../../.designer/backup/media/arrow_right.png</iconset>
           </property>
           <property name="iconSize">
            <size>
@@ -462,7 +489,7 @@
           </property>
           <property name="icon">
            <iconset>
-            <normaloff>media/arrow_left.png</normaloff>media/arrow_left.png</iconset>
+            <normaloff>../../../../.designer/backup/media/arrow_left.png</normaloff>../../../../.designer/backup/media/arrow_left.png</iconset>
           </property>
           <property name="iconSize">
            <size>
@@ -497,7 +524,7 @@
           </property>
           <property name="icon">
            <iconset>
-            <normaloff>media/arrow_down.png</normaloff>media/arrow_down.png</iconset>
+            <normaloff>../../../../.designer/backup/media/arrow_down.png</normaloff>../../../../.designer/backup/media/arrow_down.png</iconset>
           </property>
           <property name="iconSize">
            <size>
@@ -529,7 +556,7 @@
           </property>
           <property name="icon">
            <iconset>
-            <normaloff>media/arrow_up.png</normaloff>media/arrow_up.png</iconset>
+            <normaloff>../../../../.designer/backup/media/arrow_up.png</normaloff>../../../../.designer/backup/media/arrow_up.png</iconset>
           </property>
           <property name="iconSize">
            <size>
@@ -567,7 +594,7 @@
           </property>
           <property name="icon">
            <iconset>
-            <normaloff>media/enter.png</normaloff>media/enter.png</iconset>
+            <normaloff>../../../../.designer/backup/media/enter.png</normaloff>../../../../.designer/backup/media/enter.png</iconset>
           </property>
           <property name="iconSize">
            <size>
@@ -608,16 +635,7 @@
     <addaction name="actionOpen"/>
     <addaction name="actionClose"/>
    </widget>
-   <widget class="QMenu" name="menuConnect">
-    <property name="title">
-     <string>Connect</string>
-    </property>
-    <addaction name="separator"/>
-    <addaction name="actionConnect_X"/>
-    <addaction name="actionConnect_Y"/>
-   </widget>
    <addaction name="menuFile"/>
-   <addaction name="menuConnect"/>
   </widget>
   <action name="actionSave">
    <property name="text">
