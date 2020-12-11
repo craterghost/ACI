@@ -143,6 +143,18 @@ class Ui_MainWindow(object):
         self.label_axis_settings.setObjectName("label_axis_settings")
         self.layout_axis_settings.addWidget(self.label_axis_settings)
         
+        self.layout_comboBox = QtWidgets.QHBoxLayout()
+        self.layout_comboBox.setObjectName("layout_comboBox")
+        self.comboBox_x = QtWidgets.QComboBox(self.centralwidget)
+        self.comboBox_x.setEditable(True)
+        self.comboBox_x.setObjectName("comboBox_x")
+        self.layout_comboBox.addWidget(self.comboBox_x)
+        self.comboBox_y = QtWidgets.QComboBox(self.centralwidget)
+        self.comboBox_y.setEditable(True)
+        self.comboBox_y.setObjectName("comboBox_y")
+        self.layout_comboBox.addWidget(self.comboBox_y)
+        self.layout_axis_settings.addLayout(self.layout_comboBox)
+        
         #Layout for the 3 Checkboxes Axis Settings
         self.layout_axis_settings_checkboxes = QtWidgets.QHBoxLayout()
         self.layout_axis_settings_checkboxes.setContentsMargins(-1, -1, -1, 0)
@@ -335,8 +347,7 @@ class Ui_MainWindow(object):
         self.menubar.setObjectName("menubar")
         self.menuFile = QtWidgets.QMenu(self.menubar)
         self.menuFile.setObjectName("menuFile")
-        self.menuConnect = QtWidgets.QMenu(self.menubar)
-        self.menuConnect.setObjectName("menuConnect")
+
         MainWindow.setMenuBar(self.menubar)
         self.actionSave = QtWidgets.QAction(MainWindow)
         self.actionSave.setObjectName("actionSave")
@@ -356,11 +367,8 @@ class Ui_MainWindow(object):
         self.menuFile.addAction(self.actionOpen)
         self.menuFile.addAction(self.actionClose)
         
-        self.menuConnect.addSeparator()
-        self.menuConnect.addAction(self.actionConnect_X)
-        self.menuConnect.addAction(self.actionConnect_Y)
+
         self.menubar.addAction(self.menuFile.menuAction())
-        self.menubar.addAction(self.menuConnect.menuAction())
 
         self.retranslateUi(MainWindow)
         
@@ -406,6 +414,8 @@ class Ui_MainWindow(object):
         self.button_start.setText(_translate("MainWindow", "Start"))
         self.button_start.setShortcut(_translate("MainWindow", "Space"))
         self.label_axis_settings.setText(_translate("MainWindow", "Axis Settings"))
+        self.comboBox_x.setStatusTip(_translate("MainWindow", "Connect X Axis"))
+        self.comboBox_y.setStatusTip(_translate("MainWindow", "Connect Y Axis"))
         self.check_switchxy.setText(_translate("MainWindow", "Switch X Y"))
         self.check_reverse_y.setText(_translate("MainWindow", "Reverse Y"))
         self.check_reverse_x.setText(_translate("MainWindow", "Reverse X"))
@@ -438,7 +448,6 @@ class Ui_MainWindow(object):
         self.button_save_pos.setText(_translate("MainWindow", "Add Position"))
         self.button_save_pos.setShortcut(_translate("MainWindow", "Return"))
         self.menuFile.setTitle(_translate("MainWindow", "File"))
-        self.menuConnect.setTitle(_translate("MainWindow", "Connect"))
         self.actionSave.setText(_translate("MainWindow", "Save"))
         self.actionSave.setStatusTip(_translate("MainWindow", "Save existing configuration"))
         self.actionSave.setShortcut(_translate("MainWindow", "Ctrl+S"))

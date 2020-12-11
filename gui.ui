@@ -108,7 +108,11 @@
       <item>
        <layout class="QHBoxLayout" name="layout_delay">
         <item>
-         <widget class="QDoubleSpinBox" name="spinbox_delay_length"/>
+         <widget class="QDoubleSpinBox" name="spinbox_delay_length">
+          <property name="maximum">
+           <double>999999999.000000000000000</double>
+          </property>
+         </widget>
         </item>
         <item>
          <widget class="QLabel" name="label_delay">

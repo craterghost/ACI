@@ -58,6 +58,7 @@ class Ui_MainWindow(object):
         self.layout_delay = QtWidgets.QHBoxLayout()
         self.layout_delay.setObjectName("layout_delay")
         self.spinbox_delay_length = QtWidgets.QDoubleSpinBox(self.centralwidget)
+        self.spinbox_delay_length.setMaximum(999999999.0)
         self.spinbox_delay_length.setObjectName("spinbox_delay_length")
         self.layout_delay.addWidget(self.spinbox_delay_length)
         self.label_delay = QtWidgets.QLabel(self.centralwidget)
