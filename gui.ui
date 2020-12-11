@@ -197,11 +197,29 @@
            </widget>
           </item>
           <item>
+           <layout class="QHBoxLayout" name="layou_buttonConnect">
+            <item>
+             <widget class="QPushButton" name="pushButton_connectX">
+              <property name="text">
+               <string>Connect X</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="pushButton_connectY">
+              <property name="text">
+               <string>Connect Y</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item>
            <layout class="QHBoxLayout" name="layout_comboBox">
             <item>
              <widget class="QComboBox" name="comboBox_x">
               <property name="statusTip">
-               <string>Connect X Axis</string>
+               <string>Select Port of X Axis</string>
               </property>
               <property name="editable">
                <bool>true</bool>
@@ -214,7 +232,7 @@
             <item>
              <widget class="QComboBox" name="comboBox_y">
               <property name="statusTip">
-               <string>Connect Y Axis</string>
+               <string>Select Port of Y Axis</string>
               </property>
               <property name="editable">
                <bool>true</bool>
