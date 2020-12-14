@@ -184,6 +184,7 @@ class Ui_MainWindow(object):
         self.layout_speed_buttons.addWidget(self.button_speed_fastest)
         self.layout_movement_types.addLayout(self.layout_speed_buttons, 8, 0, 1, 1)
         self.step_slider = QtWidgets.QSlider(self.centralwidget)
+        self.step_slider.setMaximum(4800000)
         self.step_slider.setSingleStep(24000)
         self.step_slider.setOrientation(QtCore.Qt.Horizontal)
         self.step_slider.setObjectName("step_slider")

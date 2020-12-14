@@ -407,6 +407,9 @@
         </item>
         <item row="6" column="1">
          <widget class="QSlider" name="step_slider">
+          <property name="maximum">
+           <number>4800000</number>
+          </property>
           <property name="singleStep">
            <number>24000</number>
           </property>
