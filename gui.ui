@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1734</width>
+    <width>1432</width>
     <height>722</height>
    </rect>
   </property>
@@ -445,10 +445,16 @@
         <item row="4" column="0">
          <widget class="QSpinBox" name="speed_textbox">
           <property name="minimum">
-           <number>50</number>
+           <number>1</number>
           </property>
           <property name="maximum">
            <number>10000</number>
+          </property>
+          <property name="singleStep">
+           <number>1</number>
+          </property>
+          <property name="value">
+           <number>4</number>
           </property>
          </widget>
         </item>
@@ -644,7 +650,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1734</width>
+     <width>1432</width>
      <height>25</height>
     </rect>
    </property>

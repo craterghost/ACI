@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 __author__ = "Julius Pinsker"
 __copyright__ = "Copyright 2020, IMSAS - University of Bremen"
 __credits__ = ["Julius Pinsker"]
@@ -443,14 +442,18 @@ class Ui_MainWindow(object):
     
     #Function to add Delay-elements to List
     def addDelay(self, MainWindow):
-        length = self.spinbox_delay_length.value()
-        item = QtWidgets.QListWidgetItem("Sleep for %ss" %length)
-        icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap("media/clock.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
-        item.setIcon(icon)
-        self.list_pos.addItem(item)
-        item = self.list_pos.item(element_num.num)
-        next(element_num)   
+        if(self.spinbox_delay_length.value()>0):
+            length = self.spinbox_delay_length.value()
+            item = QtWidgets.QListWidgetItem("Sleep for %ss" %length)
+            icon = QtGui.QIcon()
+            icon.addPixmap(QtGui.QPixmap("media/clock.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+            item.setIcon(icon)
+            self.list_pos.addItem(item)
+            item = self.list_pos.item(element_num.num)
+            next(element_num)
+        else:
+            self.spinbox_delay_length.setStatusTip(_translate("MainWindow", "Must be greater than 0"))
+
 
             
     def retranslateUi(self, MainWindow):
