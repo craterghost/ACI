@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 __author__ = "Julius Pinsker"
 __copyright__ = "Copyright 2020, IMSAS - University of Bremen"
 __credits__ = ["Julius Pinsker"]
@@ -33,9 +34,8 @@ import sys
 import qdarkstyle
 from PyQt5 import QtCore, QtGui, QtWidgets
 
+#Iterator Class
 class InfIter:
-    """Infinite iterator to return all
-        odd numbers"""
 
     def __iter__(self):
         self.num = 1
