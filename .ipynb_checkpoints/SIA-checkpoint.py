@@ -2,12 +2,12 @@ __author__ = "Julius Pinsker"
 __copyright__ = "Copyright 2020, IMSAS - University of Bremen"
 __credits__ = ["Julius Pinsker"]
 __license__ = "GPL"
-__version__ = "1.2"
+__version__ = "1.3"
 __maintainer__ = "Julius Pinsker"
 __email__ = "pinsker@uni-bremen.de"
-__status__ = "Partly Commented GUI Structure"
+__status__ = "fully functional"
 
-
+import numpy as np
 import sys
 import qdarkstyle
 from PyQt5 import QtCore, QtGui, QtWidgets
@@ -22,17 +22,15 @@ from PyQt5.QtGui import QCloseEvent
 from quamash import QEventLoop
 
 
-##Definition of Constants
 
-# Object for access to the serial port
+# Object to access the serial port
 serx = Serial(timeout=0)
 sery = Serial(timeout=0)
 
+#Definition of Constants
 SER_BAUDRATE = 115200
-
-# Setting constants
-SETTING_PORT_X_NAME = 'port_name'
-SETTING_PORT_Y_NAME = 'port_name'
+SETTING_PORT_X_NAME = 'port_x_name'
+SETTING_PORT_Y_NAME = 'port_y_name'
 SETTING_MESSAGE = 'message'
 
 
@@ -73,30 +71,42 @@ class InfIter:
 pos_num = iter(InfIter())
 element_num = iter(InfIter())
 
+#Return all available serial ports.
 def gen_serial_ports() -> Iterator[Tuple[str, str]]:
-    """Return all available serial ports."""
     ports = comports()
     return ((p.description, p.device) for p in ports)
 
+#Send a message to the X-Axis(async).
 def send_serialx_async(msg: str) -> None:
-    """Send a message to serial port (async)."""
-    serx.write(msg.encode())
-    print(msg)
+    if serx.is_open:
+        serx.write(msg.encode())
+        print('X : %s' %msg)
             
-
+#Send a message to the Y-Axis(async).
 def send_serialy_async(msg: str) -> None:
-    """Send a message to serial port (async)."""
-    sery.write(msg.encode())
-    print(msg)
+    if sery.is_open:
+        sery.write(msg.encode())
+        print('Y : %s' %msg)
             
-
+#Coordinate Class Used to store mutlidimensional Position in Combination with duration lengths
+class MyCoordinate(object):
+    def __init__(self, name, X, Y, t):
+        self.name = name
+        self.X = X
+        self.Y = Y
+        self.t = t
+    
 
 
 class Ui_MainWindow(object):
+    
+    #Step_Size_Setting
+    step_size = 0
+    #Jogging_Amplitude_setting
+    jog_amp = 0 
+    #Data-structure to store Coordinates and Delays
+    point_list = []
 
-    step_size = 2
-    jog_amp = 2 
-        
     
     
     def setupUi(self, MainWindow):
@@ -481,7 +491,7 @@ class Ui_MainWindow(object):
 
         #Connect all the Interfaces to eachother
         self.actionClose.triggered.connect(MainWindow.close)
-        
+                
         self.check_movement_status("MainWindow")
         
         self.speed_slider.valueChanged['int'].connect(self.speed_textbox.setValue)
@@ -498,6 +508,8 @@ class Ui_MainWindow(object):
         self.xor_move_fluently.clicked.connect(lambda:self.check_movement_status("MainWindow"))
         self.xor_move_steps.clicked.connect(lambda:self.check_movement_status("MainWindow"))
         self.xor_move_fluently.clicked.connect(lambda:self.movement_init("MainWindow"))
+        self.xor_move_steps.clicked.connect(lambda:self.movement_init("MainWindow"))
+
 
         self.button_delete_pos.clicked.connect(lambda:self.list_pos.takeItem(self.list_pos.currentRow()))
         self.button_speed_slowest.clicked.connect(lambda:self.speed_slider.setValue(SLOWEST))
@@ -509,8 +521,8 @@ class Ui_MainWindow(object):
         self.button_big.clicked.connect(lambda:self.step_slider.setValue(BIG))
         self.button_biggest.clicked.connect(lambda:self.step_slider.setValue(BIGGEST))
         
-        self.button_move_left.pressed.connect(lambda:self.movement_fluent_start("MainWindow"))
-        self.button_move_left.released.connect(lambda:self.movement_fluent_stop("MainWindow"))
+        self.button_move_left.clicked.connect(lambda:self.movement_fluent_start("MainWindow"))
+        self.button_move_left.clicked.connect(lambda:self.movement_fluent_stop("MainWindow"))
 
         
         
@@ -519,7 +531,10 @@ class Ui_MainWindow(object):
         self.button_add_delay.clicked.connect(lambda:self.addDelay("MainWindow"))
         
         self.pushButton_connectX.clicked.connect(lambda:self.connectX_btn_pressed())
+        self.pushButton_connectX.clicked.connect(lambda:self.movement_init("MainWindow"))
+
         self.pushButton_connectY.clicked.connect(lambda:self.connectY_btn_pressed())
+        self.pushButton_connectY.clicked.connect(lambda:self.movement_init("MainWindow"))
 
         
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
@@ -530,30 +545,33 @@ class Ui_MainWindow(object):
         msg = ''
         if self.button_move_left.pressed:
             msg +='JA-%s'%Ui_MainWindow.jog_amp + '\r\n'
-            loop.call_soon(send_serialx_async, msg)
+            if serx.is_open:
+                loop.call_soon(send_serialx_async, msg)
 
         elif self.button_move_right.pressed():
             msg +='JA%s'%Ui_MainWindow.jog_amp + '\r\n'
-            loop.call_soon(send_serialx_async, msg)
+            if serx.is_open:
+                loop.call_soon(send_serialx_async, msg)
 
         elif self.button_move_down.pressed():
             msg +='JA-%s'%Ui_MainWindow.jog_amp + '\r\n'
-            loop.call_soon(send_serialy_async, msg)
+            if sery.is_open:
+                loop.call_soon(send_serialy_async, msg)
 
         elif self.button_move_up.pressed():
             msg +='JA%s'%Ui_MainWindow.jog_amp + '\r\n'
-            loop.call_soon(send_serialy_async, msg)
+            if sery.is_open:
+                loop.call_soon(send_serialy_async, msg)
+
+
 
     def movement_fluent_stop(self, MainWindow):
             msg = ''
             msg +='JA0'+ '\r\n'
             msg +='ST'+ '\r\n'
+            loop.call_soon(send_serialy_async, msg)
 
             
-    def make_checkable(self, MainWindow):
-        pass
-
-
             
         
 
@@ -619,8 +637,10 @@ class Ui_MainWindow(object):
             msg += 'OR' + '\r\n'
             #Set Top Limit
             msg += 'RFP' + '\r\n'
-            loop.call_soon(send_serialx_async, msg)
-            loop.call_soon(send_serialy_async, msg)
+            if serx.is_open:
+                loop.call_soon(send_serialx_async, msg)
+            if sery.is_open:
+                loop.call_soon(send_serialy_async, msg)
         elif self.xor_move_fluently.isChecked():
             #Set open Loop
             msg += 'OL' + '\r\n'
@@ -649,7 +669,11 @@ class Ui_MainWindow(object):
                 loop.create_task(self.receive_y_serial_async())
         elif not self.pushButton_connectY.isChecked():
             self.comboBox_y.setEnabled(True)
-            sery.close()
+            try:
+                sery.close()
+            except Exception as e:
+                self.show_error_message(str(e))
+ 
 
 
     def connectX_btn_pressed(self) -> None:
@@ -668,28 +692,42 @@ class Ui_MainWindow(object):
                 loop.create_task(self.receive_x_serial_async())
         elif not self.pushButton_connectX.isChecked():
             self.comboBox_x.setEnabled(True)
-            serx.close()
+            try:
+                serx.close()
+            except Exception as e:
+                self.show_error_message(str(e))
 
-    #Function to add Position-elements to List
+    #Function to add position-elements to list
     def addPos(self, MainWindow):
+        #Set name and icon of new position-element
         item = QtWidgets.QListWidgetItem("Position %s" %pos_num.num)
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap("media/waypoint.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         item.setIcon(icon)
+        #add element to list
         self.list_pos.addItem(item)
         item = self.list_pos.item(pos_num.num)
+        #iterate list position
         next(pos_num)
+        
+        
+        
+        
     
     #Function to add Delay-elements to List
     def addDelay(self, MainWindow):
+        #Make sure no 0s delays can be added
         if(self.spinbox_delay_length.value()>0):
+            #Set name and icon of new position-element
             length = self.spinbox_delay_length.value()
             item = QtWidgets.QListWidgetItem("Sleep for %ss" %length)
             icon = QtGui.QIcon()
             icon.addPixmap(QtGui.QPixmap("media/clock.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
             item.setIcon(icon)
+            #add element to list
             self.list_pos.addItem(item)
             item = self.list_pos.item(element_num.num)
+            #iterate list position
             next(element_num)
 
             
@@ -764,18 +802,18 @@ class Ui_MainWindow(object):
         
         self._load_settings()
     
-    
-    def _load_settings(self) -> None:
-        """Load settings on startup."""
+    #Load settings on startup.
+    def _load_settings(self) -> None:     
         settings = QSettings()
-
-        # port name
+        
+        # port name x
         port_x_name = settings.value(SETTING_PORT_X_NAME)
         if port_x_name is not None:
             index = self.comboBox_x.findData(port_x_name)
             if index > -1:
                 self.comboBox_x.setCurrentIndex(index)
                 
+        # port name y        
         port_y_name = settings.value(SETTING_PORT_Y_NAME)
         if port_y_name is not None:
             index = self.comboBox_y.findData(port_y_name)
@@ -784,53 +822,70 @@ class Ui_MainWindow(object):
 
         # last message
         msg = settings.value(SETTING_MESSAGE)
-
-
+    
+    #Save settings on shutdown.
     def _save_settings(self) -> None:
-        """Save settings on shutdown."""
         settings = QSettings()
         settings.setValue(SETTING_PORT_X_NAME, self.xport)
         settings.setValue(SETTING_PORT_Y_NAME, self.yport)
-        
+     
+    #Show a Message Box with the error message.
     def show_error_message(self, msg: str) -> None:
-        """Show a Message Box with the error message."""
         QMessageBox.critical(self, QApplication.applicationName(), str(msg))
 
+    #Update COM Ports of X Axis in GUI.
     def update_x_port(self) -> None:
-        """Update COM Port list in GUI."""
         for name, device in gen_serial_ports():
             self.comboBox_x.addItem(name, device)
-            
-    def update_y_port(self) -> None:
-        """Update COM Port list in GUI."""
+       
+    #Update COM Ports of Y Axis in GUI.
+    def update_y_port(self) -> None:     
         for name, device in gen_serial_ports():
             self.comboBox_y.addItem(name, device)
-
+            
+    #Return the current serial X axis port.
     @property
     def xport(self) -> str:
-        """Return the current serial Xaxis port."""
         return self.comboBox_x.currentData()
     
+    #Return the current serial Y axis port.
     @property
     def yport(self) -> str:
-        """Return the current serial Yaxis port."""
         return self.comboBox_y.currentData()
     
-    async def receive_x_serial_async(self) -> None:
-        """Wait for incoming data, convert it to text and add to Textedit."""
-        while True:
-            msg = serx.readline()
-            if msg != b'':
-                text = msg.decode().strip()
-            await asyncio.sleep(0)
+    #Handle Close event of the Widget.
+    def closeEvent(self, event: QCloseEvent) -> None:
+        
+        if serx.is_open:
+            serx.close()
+            
+        if sery.is_open:
+            sery.close()
+
+        self._save_settings()
+
+        event.accept()
     
-    async def receive_y_serial_async(self) -> None:
-        """Wait for incoming data, convert it to text and add to Textedit."""
+    #Wait for incoming data and convert it to text
+    async def receive_x_serial_async(self) -> None:
         while True:
-            msg = sery.readline()
-            if msg != b'':
-                text = msg.decode().strip()
-            await asyncio.sleep(0)
+            if serx.is_open:
+                msg = serx.readline()
+                if msg != b'':
+                    text = msg.decode().strip()
+                    print("Device on X says %s" %text)
+                await asyncio.sleep(0)
+    
+    #Wait for incoming data and convert it to text
+    async def receive_y_serial_async(self) -> None:
+        while True:
+            if serx.is_open:
+                msg = sery.readline()
+                if msg != b'':
+                    text = msg.decode().strip()
+                    print("Device on Y says %s" %text)
+                await asyncio.sleep(0)
+
 
 
 if __name__ == "__main__":
