@@ -1,0 +1,120 @@
+testSleep for 1.0 sNA;NA;;1000.0 
+testSleep for 1.0 sNA;NA;;1000.0 
+Sleep for 1.0 sNA;NA;;1000.0 
+testSleep for 1.0 sNA;NA;;1000.0 
+Sleep for 1.0 sNA;NA;;1000.0 
+Sleep for 1.0 sNA;NA;;1000.0 
+testSleep for 1.0 sNA;NA;;1000.0 
+Sleep for 1.0 sNA;NA;;1000.0 
+Sleep for 1.0 sNA;NA;;1000.0 
+Sleep for 1.0 sNA;NA;;1000.0 
+testSleep for 1.0 sNA;NA;;1000.0 
+Sleep for 1.0 sNA;NA;;1000.0 
+Sleep for 1.0 sNA;NA;;1000.0 
+Sleep for 1.0 sNA;NA;;1000.0 
+Position 1PA?;NA;;0 
+testSleep for 1.0 sNA;NA;;1000.0 
+Sleep for 1.0 sNA;NA;;1000.0 
+Sleep for 1.0 sNA;NA;;1000.0 
+Sleep for 1.0 sNA;NA;;1000.0 
+Position 1PA?;NA;;0 
+Sleep for 1.0 sNA;NA;;1000.0 
+testSleep for 1.0 sNA;NA;;1000.0 
+Sleep for 1.0 sNA;NA;;1000.0 
+Sleep for 1.0 sNA;NA;;1000.0 
+Sleep for 1.0 sNA;NA;;1000.0 
+Position 1PA?;NA;;0 
+Sleep for 1.0 sNA;NA;;1000.0 
+Position 2PA?;NA;;0 
+testSleep for 1.0 sNA;NA;;1000.0 
+Sleep for 1.0 sNA;NA;;1000.0 
+Sleep for 1.0 sNA;NA;;1000.0 
+Sleep for 1.0 sNA;NA;;1000.0 
+Position 1PA?;NA;;0 
+Sleep for 1.0 sNA;NA;;1000.0 
+Position 2PA?;NA;;0 
+Sleep for 1.0 sNA;NA;;1000.0 
+testSleep for 1.0 sNA;NA;;1000.0 
+Sleep for 1.0 sNA;NA;;1000.0 
+Sleep for 1.0 sNA;NA;;1000.0 
+Sleep for 1.0 sNA;NA;;1000.0 
+Position 1PA?;NA;;0 
+Sleep for 1.0 sNA;NA;;1000.0 
+Position 2PA?;NA;;0 
+Sleep for 1.0 sNA;NA;;1000.0 
+Position 3PA?;NA;;0 
+testSleep for 1.0 sNA;NA;;1000.0 
+Sleep for 1.0 sNA;NA;;1000.0 
+Sleep for 1.0 sNA;NA;;1000.0 
+Sleep for 1.0 sNA;NA;;1000.0 
+Position 1PA?;NA;;0 
+Sleep for 1.0 sNA;NA;;1000.0 
+Position 2PA?;NA;;0 
+Sleep for 1.0 sNA;NA;;1000.0 
+Position 3PA?;NA;;0 
+Sleep for 1.0 sNA;NA;;1000.0 
+testSleep for 1.0 sNA;NA;;1000.0 
+Sleep for 1.0 sNA;NA;;1000.0 
+Sleep for 1.0 sNA;NA;;1000.0 
+Sleep for 1.0 sNA;NA;;1000.0 
+Position 1PA?;NA;;0 
+Sleep for 1.0 sNA;NA;;1000.0 
+Position 2PA?;NA;;0 
+Sleep for 1.0 sNA;NA;;1000.0 
+Position 3PA?;NA;;0 
+Sleep for 1.0 sNA;NA;;1000.0 
+Position 4PA?;NA;;0 
+testSleep for 1.0 sNA;NA;;1000.0 
+Sleep for 1.0 sNA;NA;;1000.0 
+Sleep for 1.0 sNA;NA;;1000.0 
+Sleep for 1.0 sNA;NA;;1000.0 
+Position 1PA?;NA;;0 
+Sleep for 1.0 sNA;NA;;1000.0 
+Position 2PA?;NA;;0 
+Sleep for 1.0 sNA;NA;;1000.0 
+Position 3PA?;NA;;0 
+Sleep for 1.0 sNA;NA;;1000.0 
+Position 4PA?;NA;;0 
+Sleep for 1.0 sNA;NA;;1000.0 
+testSleep for 1.0 sNA;NA;;1000.0 
+Sleep for 1.0 sNA;NA;;1000.0 
+Sleep for 1.0 sNA;NA;;1000.0 
+Sleep for 1.0 sNA;NA;;1000.0 
+Position 1PA?;NA;;0 
+Sleep for 1.0 sNA;NA;;1000.0 
+Position 2PA?;NA;;0 
+Sleep for 1.0 sNA;NA;;1000.0 
+Position 3PA?;NA;;0 
+Sleep for 1.0 sNA;NA;;1000.0 
+Position 4PA?;NA;;0 
+Sleep for 1.0 sNA;NA;;1000.0 
+Position 5PA?;NA;;0 
+testSleep for 1.0 sNA;NA;;1000.0 
+Sleep for 1.0 sNA;NA;;1000.0 
+Sleep for 1.0 sNA;NA;;1000.0 
+Sleep for 1.0 sNA;NA;;1000.0 
+Position 1PA?;NA;;0 
+Sleep for 1.0 sNA;NA;;1000.0 
+Position 2PA?;NA;;0 
+Sleep for 1.0 sNA;NA;;1000.0 
+Position 3PA?;NA;;0 
+Sleep for 1.0 sNA;NA;;1000.0 
+Position 4PA?;NA;;0 
+Sleep for 1.0 sNA;NA;;1000.0 
+Position 5PA?;NA;;0 
+Sleep for 1.0 sNA;NA;;1000.0 
+testSleep for 1.0 sNA;NA;;1000.0 
+Sleep for 1.0 sNA;NA;;1000.0 
+Sleep for 1.0 sNA;NA;;1000.0 
+Sleep for 1.0 sNA;NA;;1000.0 
+Position 1PA?;NA;;0 
+Sleep for 1.0 sNA;NA;;1000.0 
+Position 2PA?;NA;;0 
+Sleep for 1.0 sNA;NA;;1000.0 
+Position 3PA?;NA;;0 
+Sleep for 1.0 sNA;NA;;1000.0 
+Position 4PA?;NA;;0 
+Sleep for 1.0 sNA;NA;;1000.0 
+Position 5PA?;NA;;0 
+Sleep for 1.0 sNA;NA;;1000.0 
+Position 6PA?;NA;;0 

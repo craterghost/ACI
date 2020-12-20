@@ -7,25 +7,25 @@ __maintainer__ = "Julius Pinsker"
 __email__ = "pinsker@uni-bremen.de"
 __status__ = "fully functional"
 
-import numpy as np
 import sys
+import time
 import qdarkstyle
-from PyQt5 import QtCore, QtGui, QtWidgets
-from PyQt5.QtWidgets import QWidget, QLabel, QComboBox, QGridLayout, \
-    QPushButton, QMessageBox, QApplication, QLineEdit, QPlainTextEdit
+from PyQt5 import QtCore, QtGui, QtWidgets, QtTest
+
+from PyQt5.QtWidgets import QWidget, QLabel, QComboBox, QGridLayout, QPushButton, QMessageBox, QApplication, QInputDialog, QLineEdit, QDialog
 import asyncio
 from serial import Serial
 from typing import Iterator, Tuple
 from serial.tools.list_ports import comports
 from PyQt5.QtCore import QSettings
-from PyQt5.QtGui import QCloseEvent
+from PyQt5.QtGui import QCloseEvent, QColor
 from quamash import QEventLoop
 
 
 
 # Object to access the serial port
-serx = Serial(timeout=0)
-sery = Serial(timeout=0)
+x_axis = Serial(timeout=0)
+y_axis = Serial(timeout=0)
 
 #Definition of Constants
 SER_BAUDRATE = 115200
@@ -77,35 +77,79 @@ def gen_serial_ports() -> Iterator[Tuple[str, str]]:
     return ((p.description, p.device) for p in ports)
 
 #Send a message to the X-Axis(async).
-def send_serialx_async(msg: str) -> None:
-    if serx.is_open:
-        serx.write(msg.encode())
-        print('X : %s' %msg)
+def write_x(msg: str) -> None:
+    if x_axis.is_open:
+        x_axis.write(msg.encode())
+        print('We Say to X - Axis : %s' %msg)
             
 #Send a message to the Y-Axis(async).
-def send_serialy_async(msg: str) -> None:
-    if sery.is_open:
-        sery.write(msg.encode())
-        print('Y : %s' %msg)
+def write_y(msg: str) -> None:
+    if y_axis.is_open:
+        y_axis.write(msg.encode())
+        print('We Say to Y - Axis : %s' %msg)
             
-#Coordinate Class Used to store mutlidimensional Position in Combination with duration lengths
-class MyCoordinate(object):
-    def __init__(self, name, X, Y, t):
-        self.name = name
-        self.X = X
-        self.Y = Y
-        self.t = t
+class PositionHandler(object):
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+        
+    def set_x(self,x):
+        self.x = x
+        
+    def set_y(self,y):
+        self.y = y
+        
+    def get_x(self) -> str:
+        return self.x
+        
+    def get_y(self) -> str:
+        return self.y 
+        
     
 
+class PositionItem(QtWidgets.QListWidgetItem):
+    def __init__(self, *args, x, y, t, **kwargs):
+        super().__init__(*args, **kwargs)
+        # optional `value` member, passed in as `value=...`, stored in data(Qt.UserRole)
+        # this is a common thing to want, cf. `QComboBox.itemData()`
+        if x is not None:
+            self.x = x
 
+        if y is not None:
+            self.y = y
+  
+        if t is not None:
+            self.t = t
+            
+    def get_x(self):
+        return self.x
+    
+    def get_y(self):
+        return self.y
+    
+    def get_t(self):
+        return self.t
+
+
+            
 class Ui_MainWindow(object):
     
+    speed = 0
     #Step_Size_Setting
     step_size = 0
     #Jogging_Amplitude_setting
     jog_amp = 0 
     #Data-structure to store Coordinates and Delays
     point_list = []
+
+    position = PositionHandler(x = 'NA', y = 'NA')
+    
+    #unit of delay spinbox
+    seconds = True
+    minutes = False
+    hours = False
+    
+
 
     
     
@@ -152,8 +196,9 @@ class Ui_MainWindow(object):
         
         #Spinbox used to set delay-element lengths
         self.spinbox_delay_length = QtWidgets.QDoubleSpinBox(self.centralwidget)
-        self.spinbox_delay_length.setMaximum(999999999.0)
         self.spinbox_delay_length.setObjectName("spinbox_delay_length")
+        self.spinbox_delay_length.setValue(1)
+
         self.layout_delay.addWidget(self.spinbox_delay_length)
         
         #Label behind the delay spinbox saying "Seconds"
@@ -173,6 +218,8 @@ class Ui_MainWindow(object):
         #Spinbox used to set counts of desired repetitions for the whole routine
         self.spinbox_rep_count = QtWidgets.QSpinBox(self.centralwidget)
         self.spinbox_rep_count.setObjectName("spinbox_rep_count")
+        self.spinbox_rep_count.setMinimum(1)
+        self.spinbox_rep_count.setValue(1)
         self.layout_line_repetitions.addWidget(self.spinbox_rep_count)
         
         #Label behind the routine-count spinbox saying "Repetitions"
@@ -183,6 +230,8 @@ class Ui_MainWindow(object):
         #Button to start list_pos routines
         self.button_start = QtWidgets.QPushButton(self.centralwidget)
         self.button_start.setObjectName("button_start")
+        self.button_start.setCheckable(True)
+
         self.layout_line_repetitions.addWidget(self.button_start)
         
         #Whole Layout Structure of Lefthand-side 
@@ -201,7 +250,7 @@ class Ui_MainWindow(object):
         
         #Layout Structure of SIA logo and Axis Settings
         self.layout_sia_logo_axis_settings = QtWidgets.QHBoxLayout()
-        self.layout_sia_logo_axis_settings.setContentsMargins(-1, -1, -1, 50)
+        self.layout_sia_logo_axis_settings.setContentsMargins(-1, -1, -1, 20)
         self.layout_sia_logo_axis_settings.setObjectName("layout_sia_logo_axis_settings")
         
         #Label saying "axis settings"
@@ -209,6 +258,10 @@ class Ui_MainWindow(object):
         self.layout_axis_settings.setObjectName("layout_axis_settings")
         self.label_axis_settings = QtWidgets.QLabel(self.centralwidget)
         self.label_axis_settings.setMaximumSize(QtCore.QSize(16777215, 50))
+        font = QtGui.QFont()
+        font.setBold(True)
+        font.setWeight(75)
+        self.label_axis_settings.setFont(font)
         self.label_axis_settings.setObjectName("label_axis_settings")
         self.layout_axis_settings.addWidget(self.label_axis_settings)
         
@@ -268,6 +321,8 @@ class Ui_MainWindow(object):
         
         self.layout_axis_settings.addLayout(self.layout_axis_settings_checkboxes)
         self.layout_sia_logo_axis_settings.addLayout(self.layout_axis_settings)
+        self.verticalLayout = QtWidgets.QVBoxLayout()
+        self.verticalLayout.setObjectName("verticalLayout")
         
         #SIA Logo in the Right Corner
         self.label_sia = QtWidgets.QLabel(self.centralwidget)
@@ -276,115 +331,122 @@ class Ui_MainWindow(object):
         self.label_sia.setObjectName("label_sia")
         
         #Layoutstructure of Axis settings and SIA Logo
-        self.layout_sia_logo_axis_settings.addWidget(self.label_sia)
+        self.verticalLayout.addWidget(self.label_sia)
+        self.layout_sia_logo_axis_settings.addLayout(self.verticalLayout)
         self.layout_rightside.addLayout(self.layout_sia_logo_axis_settings)
 
         #Layoutstructure of movement types  
         self.layout_movement_types = QtWidgets.QGridLayout()
         self.layout_movement_types.setSizeConstraint(QtWidgets.QLayout.SetFixedSize)
-        self.layout_movement_types.setContentsMargins(-1, -1, -1, 50)
+        self.layout_movement_types.setContentsMargins(-1, -1, -1, 0)
         self.layout_movement_types.setObjectName("layout_movement_types")
+        
+        self.verticalLayout_2 = QtWidgets.QVBoxLayout()
+        self.verticalLayout_2.setObjectName("verticalLayout_2")
+        
+        self.gridLayout = QtWidgets.QGridLayout()
+        self.gridLayout.setContentsMargins(-1, 0, -1, -1)
+        self.gridLayout.setObjectName("gridLayout")
+        self.label_now = QtWidgets.QLabel(self.centralwidget)
+        self.label_now.setMaximumSize(QtCore.QSize(16777215, 30))
+        font = QtGui.QFont()
+        font.setBold(True)
+        font.setWeight(75)
+        self.label_now.setFont(font)
+        self.label_now.setObjectName("label_now")
+        self.gridLayout.addWidget(self.label_now, 0, 0, 1, 1)
+        self.label_next = QtWidgets.QLabel(self.centralwidget)
+        self.label_next.setMaximumSize(QtCore.QSize(16777215, 30))
+        font = QtGui.QFont()
+        font.setBold(True)
+        font.setWeight(75)
+        self.label_next.setFont(font)
+        self.label_next.setObjectName("label_next")
+        self.gridLayout.addWidget(self.label_next, 0, 1, 1, 1)
+        self.next = QtWidgets.QLabel(self.centralwidget)
+        self.next.setMaximumSize(QtCore.QSize(16777215, 30))
+        self.next.setObjectName("next")
+        self.gridLayout.addWidget(self.next, 1, 1, 1, 1)
+        self.now = QtWidgets.QLabel(self.centralwidget)
+        self.now.setMaximumSize(QtCore.QSize(16777215, 30))
+        self.now.setObjectName("now")
+        self.gridLayout.addWidget(self.now, 1, 0, 1, 1)
+        self.verticalLayout_2.addLayout(self.gridLayout)
+        self.label_measurement = QtWidgets.QLabel(self.centralwidget)
+        self.label_measurement.setMaximumSize(QtCore.QSize(16777215, 30))
 
-        #Layout structure to allign size buttons for step movement
-        self.layout_step_sizes = QtWidgets.QHBoxLayout()
-        self.layout_step_sizes.setObjectName("layout_step_sizes")
+        font = QtGui.QFont()
+        font.setBold(True)
+        font.setWeight(75)
         
-        self.button_smallest = QtWidgets.QPushButton(self.centralwidget)
-        self.button_smallest.setObjectName("button_smallest")
-        self.layout_step_sizes.addWidget(self.button_smallest)
-        
-        self.button_small = QtWidgets.QPushButton(self.centralwidget)
-        self.button_small.setObjectName("button_small")
-        self.layout_step_sizes.addWidget(self.button_small)
-        
-        self.button_big = QtWidgets.QPushButton(self.centralwidget)
-        self.button_big.setObjectName("button_big")
-        self.layout_step_sizes.addWidget(self.button_big)
-        
-        self.button_biggest = QtWidgets.QPushButton(self.centralwidget)
-        self.button_biggest.setObjectName("button_biggest")
-        self.layout_step_sizes.addWidget(self.button_biggest)
-        
-        self.layout_movement_types.addLayout(self.layout_step_sizes, 8, 1, 1, 1)
-        self.label_moving_speed = QtWidgets.QLabel(self.centralwidget)
-        self.label_moving_speed.setMaximumSize(QtCore.QSize(16777215, 44))
-        self.label_moving_speed.setLayoutDirection(QtCore.Qt.LeftToRight)
-        self.label_moving_speed.setAutoFillBackground(False)
-        self.label_moving_speed.setObjectName("label_moving_speed")
-        self.layout_movement_types.addWidget(self.label_moving_speed, 3, 0, 1, 1)
-        
-        self.layout_speed_buttons = QtWidgets.QHBoxLayout()
-        self.layout_speed_buttons.setSizeConstraint(QtWidgets.QLayout.SetDefaultConstraint)
-        self.layout_speed_buttons.setContentsMargins(-1, -1, -1, 0)
-        self.layout_speed_buttons.setObjectName("layout_speed_buttons")
-        
-        self.button_speed_slowest = QtWidgets.QPushButton(self.centralwidget)
-        self.button_speed_slowest.setObjectName("button_speed_slowest")
-        self.layout_speed_buttons.addWidget(self.button_speed_slowest)
-        
-        self.button_speed_slow = QtWidgets.QPushButton(self.centralwidget)
-        self.button_speed_slow.setObjectName("button_speed_slow")
-        self.layout_speed_buttons.addWidget(self.button_speed_slow)
-        
-        self.button_speed_fast = QtWidgets.QPushButton(self.centralwidget)
-        self.button_speed_fast.setObjectName("button_speed_fast")
-        self.layout_speed_buttons.addWidget(self.button_speed_fast)
-        
-        self.button_speed_fastest = QtWidgets.QPushButton(self.centralwidget)
-        self.button_speed_fastest.setObjectName("button_speed_fastest")
-        self.layout_speed_buttons.addWidget(self.button_speed_fastest)
-        
-        #Layout structure to allign speedbuttons for continous movement
-        self.layout_movement_types.addLayout(self.layout_speed_buttons, 8, 0, 1, 1)
-        
-        #Slider to adjust Stepsize
+
+        self.progressBar = QtWidgets.QProgressBar(self.centralwidget)
+        self.progressBar.setMinimumSize(QtCore.QSize(300, 0))
+        self.progressBar.setProperty("value", 24)
+        self.progressBar.setObjectName("progressBar")
+        self.verticalLayout_2.addWidget(self.progressBar)
+        self.horizontalLayout_3 = QtWidgets.QHBoxLayout()
+        self.horizontalLayout_3.setContentsMargins(-1, -1, -1, 20)
+        self.horizontalLayout_3.setObjectName("horizontalLayout_3")
+        self.label = QtWidgets.QLabel(self.centralwidget)
+        self.label.setMaximumSize(QtCore.QSize(50, 16777215))
+        font = QtGui.QFont()
+        font.setBold(True)
+        font.setWeight(75)
+        self.label_measurement.setFont(font)
+        self.label_measurement.setObjectName("label_measurement")
+        self.verticalLayout_2.addWidget(self.label_measurement)
+        self.label.setFont(font)
+        self.label.setAlignment(QtCore.Qt.AlignLeading|QtCore.Qt.AlignLeft|QtCore.Qt.AlignVCenter)
+        self.label.setObjectName("label")
+        self.horizontalLayout_3.addWidget(self.label)
+        self.number_cycles = QtWidgets.QLabel(self.centralwidget)
+        font = QtGui.QFont()
+        font.setBold(False)
+        font.setWeight(50)
+        self.number_cycles.setFont(font)
+        self.number_cycles.setObjectName("number_cycles")
+        self.horizontalLayout_3.addWidget(self.number_cycles)
+        self.verticalLayout_2.addLayout(self.horizontalLayout_3)
+        self.layout_movement_types.addLayout(self.verticalLayout_2, 4, 1, 1, 1)
+        self.verticalLayout_4 = QtWidgets.QVBoxLayout()
+        self.verticalLayout_4.setObjectName("verticalLayout_4")
+        self.label_step_size = QtWidgets.QLabel(self.centralwidget)
+        self.label_step_size.setMaximumSize(QtCore.QSize(16777215, 20))
+        font = QtGui.QFont()
+        font.setBold(True)
+        font.setWeight(75)
+        self.label_step_size.setFont(font)
+        self.label_step_size.setObjectName("label_step_size")
+        self.verticalLayout_4.addWidget(self.label_step_size)
         self.step_slider = QtWidgets.QSlider(self.centralwidget)
-        self.step_slider.setMinimum(1)
         self.step_slider.setMaximum(4800000)
         self.step_slider.setSingleStep(24000)
         self.step_slider.setOrientation(QtCore.Qt.Horizontal)
         self.step_slider.setObjectName("step_slider")
-        self.layout_movement_types.addWidget(self.step_slider, 6, 1, 1, 1)
-        
-        #Spinbox to adjust Stepsize
+        self.verticalLayout_4.addWidget(self.step_slider)
         self.step_textbox = QtWidgets.QSpinBox(self.centralwidget)
-        self.step_textbox.setMinimum(1)
         self.step_textbox.setMaximum(4800000)
         self.step_textbox.setSingleStep(48000)
         self.step_textbox.setObjectName("step_textbox")
-        self.layout_movement_types.addWidget(self.step_textbox, 4, 1, 1, 1)
-        
-        #Radio Button to select movement type: continous
-        self.xor_move_fluently = QtWidgets.QRadioButton(self.centralwidget)
-        self.xor_move_fluently.setObjectName("xor_move_fluently")
-        self.layout_movement_types.addWidget(self.xor_move_fluently, 2, 0, 1, 1)
-        
-        #Speed Slider Element continous movement
-        self.speed_slider = QtWidgets.QSlider(self.centralwidget)
-        self.speed_slider.setMinimum(1)
-        self.speed_slider.setMaximum(10000)
-        self.speed_slider.setSingleStep(100)
-        self.speed_slider.setOrientation(QtCore.Qt.Horizontal)
-        self.speed_slider.setObjectName("speed_slider")
-        self.layout_movement_types.addWidget(self.speed_slider, 6, 0, 1, 1)
-        
-        #Textlabel saying step size
-        self.label_step_size = QtWidgets.QLabel(self.centralwidget)
-        self.label_step_size.setObjectName("label_step_size")
-        self.layout_movement_types.addWidget(self.label_step_size, 3, 1, 1, 1)
-        
-        #Spinbox to adjust movement speed of continous movement
-        self.speed_textbox = QtWidgets.QSpinBox(self.centralwidget)
-        self.speed_textbox.setMinimum(1)
-        self.speed_textbox.setMaximum(10000)
-        self.speed_textbox.setSingleStep(50)
-        self.speed_textbox.setObjectName("speed_textbox")
-        self.layout_movement_types.addWidget(self.speed_textbox, 4, 0, 1, 1)
-        
-        #Radio Button to select movement type: steps
-        self.xor_move_steps = QtWidgets.QRadioButton(self.centralwidget)
-        self.xor_move_steps.setObjectName("xor_move_steps")
-        self.layout_movement_types.addWidget(self.xor_move_steps, 2, 1, 1, 1)
+        self.verticalLayout_4.addWidget(self.step_textbox)
+        self.layout_step_sizes = QtWidgets.QHBoxLayout()
+        self.layout_step_sizes.setContentsMargins(-1, -1, -1, 20)
+        self.layout_step_sizes.setObjectName("layout_step_sizes")
+        self.button_smallest = QtWidgets.QPushButton(self.centralwidget)
+        self.button_smallest.setObjectName("button_smallest")
+        self.layout_step_sizes.addWidget(self.button_smallest)
+        self.button_small = QtWidgets.QPushButton(self.centralwidget)
+        self.button_small.setObjectName("button_small")
+        self.layout_step_sizes.addWidget(self.button_small)
+        self.button_big = QtWidgets.QPushButton(self.centralwidget)
+        self.button_big.setObjectName("button_big")
+        self.layout_step_sizes.addWidget(self.button_big)
+        self.button_biggest = QtWidgets.QPushButton(self.centralwidget)
+        self.button_biggest.setObjectName("button_biggest")
+        self.layout_step_sizes.addWidget(self.button_biggest)
+        self.verticalLayout_4.addLayout(self.layout_step_sizes)
+        self.layout_movement_types.addLayout(self.verticalLayout_4, 4, 0, 1, 1) 
         
         self.layout_rightside.addLayout(self.layout_movement_types)
         self.layout_arrowkeys = QtWidgets.QGridLayout()
@@ -492,185 +554,135 @@ class Ui_MainWindow(object):
         #Connect all the Interfaces to eachother
         self.actionClose.triggered.connect(MainWindow.close)
                 
-        self.check_movement_status("MainWindow")
         
-        self.speed_slider.valueChanged['int'].connect(self.speed_textbox.setValue)
-        self.speed_textbox.valueChanged['int'].connect(self.speed_slider.setValue)
-    
-        self.speed_textbox.valueChanged['int'].connect(lambda:self.openLoopTranslate("MainWindow"))
-        self.speed_textbox.valueChanged['int'].connect(lambda:self.movement_init("MainWindow"))
 
-        
         self.step_slider.valueChanged['int'].connect(self.step_textbox.setValue)
         self.step_textbox.valueChanged['int'].connect(self.step_slider.setValue)
-    
-        self.xor_move_fluently.clicked.connect(lambda:self.openLoopTranslate("MainWindow"))
-        self.xor_move_fluently.clicked.connect(lambda:self.check_movement_status("MainWindow"))
-        self.xor_move_steps.clicked.connect(lambda:self.check_movement_status("MainWindow"))
-        self.xor_move_fluently.clicked.connect(lambda:self.movement_init("MainWindow"))
-        self.xor_move_steps.clicked.connect(lambda:self.movement_init("MainWindow"))
+        self.step_textbox.valueChanged['int'].connect(lambda:self.closedLoopTranslate("MainWindow"))
 
+    
+
+    
+
+
+
+        self.spinbox_delay_length.valueChanged.connect(lambda: self.update_spinbox_delay("MainWindow"))
 
         self.button_delete_pos.clicked.connect(lambda:self.list_pos.takeItem(self.list_pos.currentRow()))
-        self.button_speed_slowest.clicked.connect(lambda:self.speed_slider.setValue(SLOWEST))
-        self.button_speed_slow.clicked.connect(lambda:self.speed_slider.setValue(SLOW))
-        self.button_speed_fast.clicked.connect(lambda:self.speed_slider.setValue(FAST))
-        self.button_speed_fastest.clicked.connect(lambda:self.speed_slider.setValue(FASTEST))
-        self.button_smallest.clicked.connect(lambda:self.step_slider.setValue(SMALLEST))
-        self.button_small.clicked.connect(lambda:self.step_slider.setValue(SMALL))
-        self.button_big.clicked.connect(lambda:self.step_slider.setValue(BIG))
-        self.button_biggest.clicked.connect(lambda:self.step_slider.setValue(BIGGEST))
         
-        self.button_move_left.clicked.connect(lambda:self.movement_fluent_start("MainWindow"))
-        self.button_move_left.clicked.connect(lambda:self.movement_fluent_stop("MainWindow"))
+
 
         
+        #Arrow buttons call the movements function, that communicates either continous or step movement
+        self.button_move_left.clicked.connect(lambda:self.movement("MainWindow",direction=1))
+        self.button_move_right.clicked.connect(lambda:self.movement("MainWindow",direction=2))
+        self.button_move_up.clicked.connect(lambda:self.movement("MainWindow",direction=3))
+        self.button_move_down.clicked.connect(lambda:self.movement("MainWindow",direction=4))
         
-        #Add Position and Delay Elements
-        self.button_save_pos.clicked.connect(lambda:self.addPos("MainWindow"))
-        self.button_add_delay.clicked.connect(lambda:self.addDelay("MainWindow"))
+        #Send PA? Command to retrieve position Status
+        self.button_save_pos.clicked.connect(lambda:self.get_position(x_axis))
+        self.button_save_pos.clicked.connect(lambda:self.get_position(y_axis))
+        #Save a delay element to the data structure
+        self.button_add_delay.clicked.connect(lambda:self.save_delay("MainWindow"))
         
+        #Connect to serial device (x-Axis) via button
         self.pushButton_connectX.clicked.connect(lambda:self.connectX_btn_pressed())
         self.pushButton_connectX.clicked.connect(lambda:self.movement_init("MainWindow"))
-
+        
+        #Connect to serial device (y-Axis) via button
         self.pushButton_connectY.clicked.connect(lambda:self.connectY_btn_pressed())
         self.pushButton_connectY.clicked.connect(lambda:self.movement_init("MainWindow"))
+
+        #Start measurement via start-button
+        self.button_start.clicked.connect(lambda:self.start_routine("MainWindow"))
+        self.button_start.clicked.connect(lambda:self.show_status("MainWindow"))
+        
 
         
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
     
 
             
-    def movement_fluent_start(self, MainWindow):
+    def movement(self, MainWindow, direction):
         msg = ''
-        if self.button_move_left.pressed:
-            msg +='JA-%s'%Ui_MainWindow.jog_amp + '\r\n'
-            if serx.is_open:
-                loop.call_soon(send_serialx_async, msg)
+        if direction == 1:
+            msg +='PR-%s' %('{:f}'.format(Ui_MainWindow.speed)) + '\r\n'
+            if x_axis.is_open:
+                loop.call_soon(write_x, msg)
 
-        elif self.button_move_right.pressed():
-            msg +='JA%s'%Ui_MainWindow.jog_amp + '\r\n'
-            if serx.is_open:
-                loop.call_soon(send_serialx_async, msg)
+        elif direction == 2:
+            msg +='PR%s' %('{:f}'.format(Ui_MainWindow.speed)) + '\r\n'
+            if x_axis.is_open:
+                loop.call_soon(write_x, msg)
 
-        elif self.button_move_down.pressed():
-            msg +='JA-%s'%Ui_MainWindow.jog_amp + '\r\n'
-            if sery.is_open:
-                loop.call_soon(send_serialy_async, msg)
+        elif direction == 3:
+            msg +='PR%s' %('{:f}'.format(Ui_MainWindow.speed)) + '\r\n'
+            if y_axis.is_open:
+                loop.call_soon(write_y, msg)
 
-        elif self.button_move_up.pressed():
-            msg +='JA%s'%Ui_MainWindow.jog_amp + '\r\n'
-            if sery.is_open:
-                loop.call_soon(send_serialy_async, msg)
+        elif direction == 4:
+            msg +='PR%s' %('{:f}'.format(Ui_MainWindow.speed)) + '\r\n'
+            if y_axis.is_open:
+                loop.call_soon(write_y, msg)
 
 
 
-    def movement_fluent_stop(self, MainWindow):
-            msg = ''
-            msg +='JA0'+ '\r\n'
-            msg +='ST'+ '\r\n'
-            loop.call_soon(send_serialy_async, msg)
 
             
             
         
 
-    #function that disables Movement unless one of the Moving types, either fluently or steps is selected,
-    def check_movement_status(self, MainWindow):
-        if not self.xor_move_fluently.isChecked() and not self.xor_move_steps.isChecked():
-            self.button_move_down.setVisible(False)
-            self.button_move_up.setVisible(False)
-            self.button_move_left.setVisible(False)
-            self.button_move_right.setVisible(False)
-            self.button_save_pos.setVisible(False)
-        elif self.xor_move_fluently.isChecked() or self.xor_move_steps.isChecked():
-            self.button_move_down.setVisible(True)
-            self.button_move_up.setVisible(True)
-            self.button_move_left.setVisible(True)
-            self.button_move_right.setVisible(True)
-            self.button_save_pos.setVisible(True)
-            
 
+
+    def closedLoopTranslate(self, MainWindow):
+        Ui_MainWindow.speed = self.step_slider.value()/1000000
     
-    #Sets Moving speeds for Open Loop Usage depending on the speed_slider Value
-    def openLoopTranslate(self, MainWindow):
-        #global step_size
-        #Confirm movement type
-        if(self.xor_move_fluently.isChecked()):
-            if(self.speed_textbox.value()<1 or self.speed_textbox.value()>10000):
-                pass
-            elif(self.speed_textbox.value()<50):
-                #Set Stepping amplitude
-                Ui_MainWindow.jog_amp = 1
-                #Set Step size in percent
-                Ui_MainWindow.step_size = int(100*self.speed_textbox.value()/50)
-            elif(self.speed_textbox.value()<1000):
-                #Set Stepping amplitude
-                Ui_MainWindow.jog_amp = 2
-                #Set Step size in percent
-                Ui_MainWindow.step_size = int(100*self.speed_textbox.value()/1000)
-            elif(self.speed_textbox.value()<5000):
-                #Set Stepping amplitude
-                Ui_MainWindow.jog_amp = 3
-                #Set Step size in percent
-                Ui_MainWindow.step_size = int(100*self.speed_textbox.value()/5000)
-            elif(self.speed_textbox.value()<10000):
-                #Set Stepping amplitude
-                Ui_MainWindow.jog_amp = 4
-                #Set Step size in percent
-                Ui_MainWindow.step_size = int(100*self.speed_textbox.value()/10000)
+
     
     def movement_init(self, MainWindow):
         msg = ''
-        if self.xor_move_steps.isChecked():
-            #Set to closed Loop State
-            msg += 'OR' + '\r\n'
-            #Disabled Mode
-            msg += 'MM0' + '\r\n'
-            #Set Top Limit
-            msg += 'SR48' + '\r\n'
-            #Set Bottom Limit
-            msg += 'SL0' + '\r\n'
-            #Set Top Limit
-            msg += 'MM1' + '\r\n'
-            #Set Top Limit
-            msg += 'OR' + '\r\n'
-            #Set Top Limit
-            msg += 'RFP' + '\r\n'
-            if serx.is_open:
-                loop.call_soon(send_serialx_async, msg)
-            if sery.is_open:
-                loop.call_soon(send_serialy_async, msg)
-        elif self.xor_move_fluently.isChecked():
-            #Set open Loop
-            msg += 'OL' + '\r\n'
-            #Set Movement Speed
-            msg += 'XU-%s,%s' % (Ui_MainWindow.step_size, Ui_MainWindow.step_size) + '\r\n'
-            if serx.is_open:
-                loop.call_soon(send_serialx_async, msg)
-            if sery.is_open:
-                loop.call_soon(send_serialy_async, msg)
+        #Set to closed Loop State
+        msg += 'OR' + '\r\n'
+        #Disabled Mode
+        msg += 'MM0' + '\r\n'
+        #Set Top Limit
+        msg += 'SR48' + '\r\n'
+        #Set Bottom Limit
+        msg += 'SL0' + '\r\n'
+        #Set Top Limit
+        msg += 'MM1' + '\r\n'
+        #Set Top Limit
+        msg += 'OR' + '\r\n'
+        #Set Top Limit
+        msg += 'RFP' + '\r\n'
+        if x_axis.is_open:
+            loop.call_soon(write_x, msg)
+        if y_axis.is_open:
+            loop.call_soon(write_y, msg)
 
 
             
     def connectY_btn_pressed(self) -> None:
         """Open serial connection to the specified port."""
-        if sery.is_open:
-            sery.close()
+        if y_axis.is_open:
+            y_axis.close()
         if self.pushButton_connectY.isChecked():
-            sery.port = self.yport
-            sery.baudrate = SER_BAUDRATE
+            y_axis.port = self.yport
+            y_axis.baudrate = SER_BAUDRATE
             try:
-                sery.open()
+                y_axis.open()
             except Exception as e:
                 self.show_error_message(str(e))
-            if sery.is_open:
+            if y_axis.is_open:
+                self.show_control(True)
                 self.comboBox_y.setEnabled(False)
-                loop.create_task(self.receive_y_serial_async())
+                loop.create_task(self.read_y())
         elif not self.pushButton_connectY.isChecked():
             self.comboBox_y.setEnabled(True)
             try:
-                sery.close()
+                y_axis.close()
+                self.show_control(False)
+
             except Exception as e:
                 self.show_error_message(str(e))
  
@@ -678,49 +690,66 @@ class Ui_MainWindow(object):
 
     def connectX_btn_pressed(self) -> None:
         """Open serial connection to the specified port."""
-        if serx.is_open:
-            serx.close()
+        if x_axis.is_open:
+            x_axis.close()
         if self.pushButton_connectX.isChecked():
-            serx.port = self.xport
-            serx.baudrate = SER_BAUDRATE
+            x_axis.port = self.xport
+            x_axis.baudrate = SER_BAUDRATE
             try:
-                serx.open()
+                x_axis.open()
             except Exception as e:
                 self.show_error_message(str(e))
-            if serx.is_open:
+            if x_axis.is_open:
+                self.show_control(True)
+                self.movement_init("MainWindow")
                 self.comboBox_x.setEnabled(False)
-                loop.create_task(self.receive_x_serial_async())
+                loop.create_task(self.read_x())
         elif not self.pushButton_connectX.isChecked():
             self.comboBox_x.setEnabled(True)
             try:
-                serx.close()
+                x_axis.close()
+                self.show_control(False)
             except Exception as e:
                 self.show_error_message(str(e))
 
+    def get_position(self, port) -> None:
+        if port.is_open:
+            loop.call_soon(write_x, "PA?")
+
+
+                
     #Function to add position-elements to list
-    def addPos(self, MainWindow):
+    def save_position(self, MainWindow):
         #Set name and icon of new position-element
-        item = QtWidgets.QListWidgetItem("Position %s" %pos_num.num)
+        item = PositionItem(QtWidgets.QListWidgetItem("Position %s" %pos_num.num), x = Ui_MainWindow.position.get_x() , y = Ui_MainWindow.position.get_y() ,t=0)
+        print("Item saved: x Position %s" %item.get_x())
+        print("Item saved: y Position %s" %item.get_y())
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap("media/waypoint.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         item.setIcon(icon)
         #add element to list
         self.list_pos.addItem(item)
-        item = self.list_pos.item(pos_num.num)
+        #item = self.list_pos.item(pos_num.num)
+        
+
         #iterate list position
         next(pos_num)
-        
-        
-        
-        
+          
     
     #Function to add Delay-elements to List
-    def addDelay(self, MainWindow):
+    def save_delay(self, MainWindow):
         #Make sure no 0s delays can be added
         if(self.spinbox_delay_length.value()>0):
             #Set name and icon of new position-element
             length = self.spinbox_delay_length.value()
-            item = QtWidgets.QListWidgetItem("Sleep for %ss" %length)
+            if Ui_MainWindow.seconds:
+                item = PositionItem(QtWidgets.QListWidgetItem("Sleep for %s s" %length), x = "NA" , y = "NA" ,t = length *1000)
+            if Ui_MainWindow.minutes:
+                item = PositionItem(QtWidgets.QListWidgetItem("Sleep for %s min" %length), x = "NA" , y = "NA" ,t = length*60*1000)
+            if Ui_MainWindow.hours:
+                item = PositionItem(QtWidgets.QListWidgetItem("Sleep for %s h" %length), x = "NA" , y = "NA" ,t = length*60*60*1000)
+                
+            print("Item saved: Delay, length: %s" %length)
             icon = QtGui.QIcon()
             icon.addPixmap(QtGui.QPixmap("media/clock.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
             item.setIcon(icon)
@@ -730,7 +759,155 @@ class Ui_MainWindow(object):
             #iterate list position
             next(element_num)
 
+    def start_routine(self, MainWindow):
+        if self.button_start.isChecked():
+            self.button_start.setText(QtCore.QCoreApplication.translate("MainWindow", "Stop"))
+            self.show_status(True)
+            self.progressBar.setProperty("value", 0)
+            total = self.total_time()
+            print("total time %s"%total)
+            start = time.time()
+            print("start time %s"%start)
+            for j in range(self.spinbox_rep_count.value()):
+                self.update_cycles(index = j)
+                for i in range(self.list_pos.count()):
+                    self.update_actions( index = i)
+                    if j % 2:
+                        self.list_pos.item(i).setBackground(QColor("#19232d"))
+                    else:
+                        self.list_pos.item(i).setBackground(QColor("#00558d"))
+                    text = self.list_pos.item(i).text()
+                    loop.call_soon(write_x,self.list_pos.item(i).get_x())
+                    loop.call_soon(write_y,self.list_pos.item(i).get_y())
+                    print("Going for %s" %self.list_pos.item(i).text())
+                    if "Sleep" in text:
+                        QtTest.QTest.qWait(int(self.list_pos.item(i).get_t()))
+                    self.update_progressbar(start_time = start, total_time = total)  
+           
+            for i in range(self.list_pos.count()):
+                self.list_pos.item(i).setBackground(QColor("#19232d"))
+            self.show_popup()
+            self.button_start.setChecked(False)
+            self.start_routine("MainWindow")
+
+        else:
+            self.show_status(False)
+            self.button_start.setText(QtCore.QCoreApplication.translate("MainWindow", "Start"))
+
+                            
             
+    def show_status(self, show):
+        self.label_now.setVisible(show)
+        self.label_next.setVisible(show)
+        self.next.setVisible(show)
+        self.now.setVisible(show)
+        self.label_measurement.setVisible(show)
+        self.progressBar.setVisible(show)
+        self.label.setVisible(show)
+        self.number_cycles.setVisible(show)
+        
+    def show_control(self, show):
+        self.button_move_up.setVisible(show)
+        self.button_move_down.setVisible(show)
+        self.button_move_right.setVisible(show)
+        self.button_move_left.setVisible(show)
+        self.button_save_pos.setVisible(show)
+        self.button_smallest.setVisible(show)
+        self.button_small.setVisible(show)
+        self.button_big.setVisible(show)
+        self.button_biggest.setVisible(show)
+        self.step_textbox.setVisible(show)
+        self.step_slider.setVisible(show)
+        self.label_step_size.setVisible(show)
+
+        
+    def show_popup(self):
+        msg = QMessageBox()
+        msg.setWindowTitle("Success")
+        msg.setText("The measurement has been successfull    ")
+        x = msg.exec_()  # this will show our messagebox
+
+    def total_time(self)->float:
+        total_time=0
+        for j in range(self.spinbox_rep_count.value()):
+            for i in range(self.list_pos.count()):
+                text = self.list_pos.item(i).text()
+                if "Sleep" in text:
+                    total_time += self.list_pos.item(i).get_t()
+        return total_time       
+        
+        
+    def update_progressbar(self, start_time, total_time):
+        if self.progressBar.value() < 97 :
+            total = total_time/1000
+            start = start_time
+            now = time.time()
+            print("start: %s" %(start))
+            progress = int(100*(now-start)/total)
+            print("now: %s" %(now-start))
+            print("total: %s" %(total))
+            self.progressBar.setProperty("value", progress)
+        
+    def update_cycles(self, index):
+        self.number_cycles.setText(QtCore.QCoreApplication.translate("MainWindow", "%s of %s" %(index+1 ,self.spinbox_rep_count.value())))
+        
+    def update_actions(self, index):
+        if index +1 < self.list_pos.count():
+            nex = self.list_pos.item(index+1).text()
+            if "Sleep" in nex:
+                sleep_time = self.list_pos.item(index+1).get_t()/1000
+                self.next.setText(QtCore.QCoreApplication.translate("MainWindow", "Sleep for %s" %sleep_time))            
+            elif "Sleep" not in nex:
+                self.next.setText(QtCore.QCoreApplication.translate("MainWindow", "Moving to %s" %nex)) 
+        elif index +1 > self.list_pos.count():
+            nex = "---"
+        cur = self.list_pos.item(index).text()
+        
+        if "Sleep" in cur:
+            sleep_time = self.list_pos.item(index).get_t()/1000
+            self.now.setText(QtCore.QCoreApplication.translate("MainWindow", "Sleep for %s" %sleep_time))
+        elif "Sleep" not in cur:
+            self.now.setText(QtCore.QCoreApplication.translate("MainWindow", "Moving to %s" %cur))
+        
+               
+        
+        
+    def update_spinbox_delay(self, MainWindow):
+
+        if self.spinbox_delay_length.value()<59 and Ui_MainWindow.seconds is True:
+            self.label_delay.setText(QtCore.QCoreApplication.translate("MainWindow", "Seconds"))
+        
+        #switch from seconds to minutes
+        elif self.spinbox_delay_length.value()>59 and Ui_MainWindow.seconds is True:
+                Ui_MainWindow.seconds = False
+                Ui_MainWindow.minutes = True
+                self.label_delay.setText(QtCore.QCoreApplication.translate("MainWindow", "Minutes"))
+                self.spinbox_delay_length.setValue(1)
+        
+        #switch from minutes to seconds        
+        elif self.spinbox_delay_length.value()<1 and Ui_MainWindow.minutes is True:
+                Ui_MainWindow.seconds = True
+                Ui_MainWindow.minutes = False
+                self.label_delay.setText(QtCore.QCoreApplication.translate("MainWindow", "Seconds"))
+                self.spinbox_delay_length.setValue(59)
+        
+        #switch from minutes to hours
+        elif self.spinbox_delay_length.value()>59 and Ui_MainWindow.minutes is True:
+                Ui_MainWindow.minutes = False
+                Ui_MainWindow.hours = True
+                self.label_delay.setText(QtCore.QCoreApplication.translate("MainWindow", "Hours"))
+                self.spinbox_delay_length.setValue(1)
+        
+        #switch from hours to minutes        
+        elif self.spinbox_delay_length.value()<1 and Ui_MainWindow.hours is True:
+                Ui_MainWindow.minutes = True
+                Ui_MainWindow.hours = False
+                self.label_delay.setText(QtCore.QCoreApplication.translate("MainWindow", "Minutes"))
+                self.spinbox_delay_length.setValue(59)
+
+
+            
+    #Function to add MainWindow titles,labels on buttons, statustips and shortcuts.        
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
         
@@ -740,8 +917,7 @@ class Ui_MainWindow(object):
 
         #Set all Texts on Buttons
         self.button_delete_pos.setText(_translate("MainWindow", "Delete Selected"))  
-        self.label_delay.setText(_translate("MainWindow", "Seconds"))
-        self.button_add_delay.setText(_translate("MainWindow", "Add Delay"))
+        self.button_add_delay.setText(_translate("MainWindow", "Add Delay"))       
         self.label_repetitions.setText(_translate("MainWindow", "Repetitions"))
         self.button_start.setText(_translate("MainWindow", "Start"))
         self.label_axis_settings.setText(_translate("MainWindow", "Axis Settings"))
@@ -750,18 +926,17 @@ class Ui_MainWindow(object):
         self.check_switchxy.setText(_translate("MainWindow", "Switch X Y"))
         self.check_reverse_y.setText(_translate("MainWindow", "Reverse Y"))
         self.check_reverse_x.setText(_translate("MainWindow", "Reverse X"))
+        self.label_now.setText(_translate("MainWindow", "Present Step"))
+        self.label_next.setText(_translate("MainWindow", "Next Step"))
+
+        self.label_measurement.setText(_translate("MainWindow", "Overall Progress"))
+        self.label.setText(_translate("MainWindow", "Cycle"))
+        
+        self.label_step_size.setText(_translate("MainWindow", "Step Size"))
         self.button_smallest.setText(_translate("MainWindow", "smallest"))
         self.button_small.setText(_translate("MainWindow", "small"))
         self.button_big.setText(_translate("MainWindow", "big"))
         self.button_biggest.setText(_translate("MainWindow", "biggest"))
-        self.label_moving_speed.setText(_translate("MainWindow", "Moving Speed"))
-        self.button_speed_slowest.setText(_translate("MainWindow", "slowest"))
-        self.button_speed_slow.setText(_translate("MainWindow", "slow"))
-        self.button_speed_fast.setText(_translate("MainWindow", "fast"))
-        self.button_speed_fastest.setText(_translate("MainWindow", "fastest"))
-        self.xor_move_fluently.setText(_translate("MainWindow", "Move Fluently"))
-        self.label_step_size.setText(_translate("MainWindow", "Step Size"))
-        self.xor_move_steps.setText(_translate("MainWindow", "Move in Steps"))
         self.button_save_pos.setText(_translate("MainWindow", "Add Position"))
         self.actionSave.setText(_translate("MainWindow", "Save"))
         self.actionNew.setText(_translate("MainWindow", "New"))
@@ -769,7 +944,9 @@ class Ui_MainWindow(object):
         self.actionConnect_X.setText(_translate("MainWindow", "Connect X"))
         self.actionConnect_Y.setText(_translate("MainWindow", "Connect Y"))
         self.actionClose.setText(_translate("MainWindow", "Close"))
-
+        self.update_spinbox_delay("MainWindow")
+        
+        
         #Set all the Status Tips
         self.actionNew.setStatusTip(_translate("MainWindow", "Create new configuration"))
         self.actionSave.setStatusTip(_translate("MainWindow", "Save existing configuration"))
@@ -795,6 +972,19 @@ class Ui_MainWindow(object):
         self.button_add_delay.setShortcut(_translate("MainWindow", "D"))
         self.button_delete_pos.setShortcut(_translate("MainWindow", "Del"))        
         self.actionClose.setShortcut(_translate("MainWindow", "Ctrl+X"))
+        
+        self.label_now.setVisible(False)
+        self.label_next.setVisible(False)
+        self.next.setVisible(False)
+        self.now.setVisible(False)
+        self.label_measurement.setVisible(False)
+        self.progressBar.setVisible(False)
+        self.label.setVisible(False)
+        self.number_cycles.setVisible(False)
+        self.show_control(False)
+
+        
+
         
         __sortingEnabled = self.list_pos.isSortingEnabled()
         self.list_pos.setSortingEnabled(False)       
@@ -856,34 +1046,39 @@ class Ui_MainWindow(object):
     #Handle Close event of the Widget.
     def closeEvent(self, event: QCloseEvent) -> None:
         
-        if serx.is_open:
-            serx.close()
+        if x_axis.is_open:
+            x_axis.close()
             
-        if sery.is_open:
-            sery.close()
+        if y_axis.is_open:
+            y_axis.close()
 
         self._save_settings()
 
         event.accept()
     
     #Wait for incoming data and convert it to text
-    async def receive_x_serial_async(self) -> None:
-        while True:
-            if serx.is_open:
-                msg = serx.readline()
+    async def read_x(self) -> None:
+        while x_axis.is_open:
+                msg = x_axis.readline()
                 if msg != b'':
                     text = msg.decode().strip()
                     print("Device on X says %s" %text)
+                    if "PA" in text:
+                        Ui_MainWindow.position.set_x(text)
+                        Ui_MainWindow.save_position(self,"MainWindow")
                 await asyncio.sleep(0)
-    
+                
+         
     #Wait for incoming data and convert it to text
-    async def receive_y_serial_async(self) -> None:
-        while True:
-            if serx.is_open:
-                msg = sery.readline()
+    async def read_y(self) -> None:
+        while y_axis.is_open:
+                msg = y_axis.readline()
                 if msg != b'':
                     text = msg.decode().strip()
                     print("Device on Y says %s" %text)
+                    if "PA" in text:
+                        Ui_MainWindow.position.set_y(text)
+                        Ui_MainWindow.save_position(self,"MainWindow")
                 await asyncio.sleep(0)
 
 
@@ -902,5 +1097,3 @@ if __name__ == "__main__":
     
     with loop:
         loop.run_forever()
-
-
