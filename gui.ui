@@ -388,19 +388,6 @@
            </layout>
           </item>
           <item>
-           <widget class="QProgressBar" name="progressBar">
-            <property name="minimumSize">
-             <size>
-              <width>300</width>
-              <height>0</height>
-             </size>
-            </property>
-            <property name="value">
-             <number>24</number>
-            </property>
-           </widget>
-          </item>
-          <item>
            <widget class="QLabel" name="label_measurement">
             <property name="maximumSize">
              <size>
@@ -416,6 +403,19 @@
             </property>
             <property name="text">
              <string>Overall Progress</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QProgressBar" name="progressBar">
+            <property name="minimumSize">
+             <size>
+              <width>300</width>
+              <height>0</height>
+             </size>
+            </property>
+            <property name="value">
+             <number>24</number>
             </property>
            </widget>
           </item>
