@@ -28,7 +28,10 @@ x_axis = Serial(timeout=0)
 y_axis = Serial(timeout=0)
 
 #Definition of Constants
-SER_BAUDRATE = 921600
+
+#SER_BAUDRATE = 921600
+SER_BAUDRATE = 115200
+
 SETTING_PORT_X_NAME = 'port_x_name'
 SETTING_PORT_Y_NAME = 'port_y_name'
 SETTING_MESSAGE = 'message'
@@ -46,8 +49,10 @@ SLOW = 500
 FAST = 4000
 FASTEST = 10000
 
-
-
+#Timeout between movements to positions (in s)
+BUFFER = 1
+#Translation to milliseconds
+BUFFER = BUFFER * 1000
 ###############################################################
 ########################GUI CODE###############################
 ###############################################################
@@ -80,13 +85,14 @@ def gen_serial_ports() -> Iterator[Tuple[str, str]]:
 def write_x(msg: str) -> None:
     if x_axis.is_open:
         x_axis.write(msg.encode())
-        print('We Say to X - Axis : %s' %msg)
+        print('We Say to x - axis : %s' %msg)
             
 #Send a message to the Y-Axis(async).
 def write_y(msg: str) -> None:
     if y_axis.is_open:
         y_axis.write(msg.encode())
-        print('We Say to Y - Axis : %s' %msg)
+        print('We Say to y - axis : %s' %msg)
+    
             
 class PositionHandler(object):
     def __init__(self, x, y):
@@ -149,6 +155,8 @@ class Ui_MainWindow(QWidget):
     minutes = False
     hours = False
     
+    running = False
+    
 
 
     
@@ -189,6 +197,7 @@ class Ui_MainWindow(QWidget):
         self.list_pos.setSelectionMode(QtWidgets.QAbstractItemView.ExtendedSelection)
         self.list_pos.setLayoutMode(QtWidgets.QListView.SinglePass)
         self.list_pos.setViewMode(QtWidgets.QListView.ListMode)
+        self.list_pos.setMinimumSize(QtCore.QSize(350, 0))
         self.list_pos.setObjectName("list_pos")
         
 
@@ -382,11 +391,8 @@ class Ui_MainWindow(QWidget):
         font.setWeight(75)
         
 
-        self.progressBar = QtWidgets.QProgressBar(self.centralwidget)
-        self.progressBar.setMinimumSize(QtCore.QSize(300, 0))
-        self.progressBar.setProperty("value", 24)
-        self.progressBar.setObjectName("progressBar")
-        self.verticalLayout_2.addWidget(self.progressBar)
+
+        
         self.horizontalLayout_3 = QtWidgets.QHBoxLayout()
         self.horizontalLayout_3.setContentsMargins(-1, -1, -1, 20)
         self.horizontalLayout_3.setObjectName("horizontalLayout_3")
@@ -398,6 +404,11 @@ class Ui_MainWindow(QWidget):
         self.label_measurement.setFont(font)
         self.label_measurement.setObjectName("label_measurement")
         self.verticalLayout_2.addWidget(self.label_measurement)
+        self.progressBar = QtWidgets.QProgressBar(self.centralwidget)
+        self.progressBar.setMinimumSize(QtCore.QSize(300, 0))
+        self.progressBar.setProperty("value", 24)
+        self.progressBar.setObjectName("progressBar")
+        self.verticalLayout_2.addWidget(self.progressBar)
         self.label.setFont(font)
         self.label.setAlignment(QtCore.Qt.AlignLeading|QtCore.Qt.AlignLeft|QtCore.Qt.AlignVCenter)
         self.label.setObjectName("label")
@@ -423,6 +434,7 @@ class Ui_MainWindow(QWidget):
         self.verticalLayout_4.addWidget(self.label_step_size)
         self.step_slider = QtWidgets.QSlider(self.centralwidget)
         self.step_slider.setMaximum(4800000)
+        self.step_slider.setMinimum(1)
         self.step_slider.setSingleStep(24000)
         self.step_slider.setOrientation(QtCore.Qt.Horizontal)
         self.step_slider.setObjectName("step_slider")
@@ -560,7 +572,7 @@ class Ui_MainWindow(QWidget):
 
         self.step_slider.valueChanged['int'].connect(self.step_textbox.setValue)
         self.step_textbox.valueChanged['int'].connect(self.step_slider.setValue)
-        self.step_textbox.valueChanged['int'].connect(lambda:self.closedLoopTranslate("MainWindow"))
+        self.step_textbox.valueChanged['int'].connect(lambda:self.movement_normalize("MainWindow"))
 
     
 
@@ -573,7 +585,10 @@ class Ui_MainWindow(QWidget):
         self.button_delete_pos.clicked.connect(lambda:self.list_pos.takeItem(self.list_pos.currentRow()))
         
 
-
+        self.button_smallest.clicked.connect(lambda:self.step_slider.setValue(SMALLEST))
+        self.button_small.clicked.connect(lambda:self.step_slider.setValue(SMALL))
+        self.button_big.clicked.connect(lambda:self.step_slider.setValue(BIG))
+        self.button_biggest.clicked.connect(lambda:self.step_slider.setValue(BIGGEST))
         
         #Arrow buttons call the movements function, that communicates either continous or step movement
         self.button_move_left.clicked.connect(lambda:self.movement("MainWindow",direction=1))
@@ -582,20 +597,20 @@ class Ui_MainWindow(QWidget):
         self.button_move_down.clicked.connect(lambda:self.movement("MainWindow",direction=4))
         
         #Send PA? Command to retrieve position Status
-        self.button_save_pos.clicked.connect(lambda:self.get_position(x_axis))
-        self.button_save_pos.clicked.connect(lambda:self.get_position(y_axis))
+        self.button_save_pos.clicked.connect(lambda:self.get_x_position(x_axis))
+        self.button_save_pos.clicked.connect(lambda:self.get_y_position(y_axis))
         #Save a delay element to the data structure
         self.button_add_delay.clicked.connect(lambda:self.save_delay("MainWindow"))
         
         #Connect to serial device (x-Axis) via button
-        self.pushButton_connectX.clicked.connect(lambda:self.connectX_btn_pressed())
+        self.pushButton_connectX.clicked.connect(lambda:self.connect_X())
         
         #Connect to serial device (y-Axis) via button
-        self.pushButton_connectY.clicked.connect(lambda:self.connectY_btn_pressed())
+        self.pushButton_connectY.clicked.connect(lambda:self.connect_Y())
 
         #Start measurement via start-button
         self.button_start.clicked.connect(lambda:self.start_routine("MainWindow"))
-        self.button_start.clicked.connect(lambda:self.show_status("MainWindow"))
+        self.button_start.clicked.connect(lambda:self.show_status(True))
         
         self.actionSave.triggered.connect(lambda:self.save_routine())
         self.actionOpen.triggered.connect(lambda:self.open_routine("MainWindow"))
@@ -607,43 +622,42 @@ class Ui_MainWindow(QWidget):
 
             
     def movement(self, MainWindow, direction):
-        
-        if self.check_switchxy.isChecked and direction == 1:
-            direction = 3  
-        elif self.check_switchxy.isChecked and direction == 3:
-            direction = 1
-        elif self.check_switchxy.isChecked and direction == 2:
-            direction = 4
-        elif self.check_switchxy.isChecked and direction == 4:
-            direction = 2  
-            
+        self.direction = direction
+        if self.check_switchxy.isChecked() and direction == 1:
+            self.direction = 3  
+        elif self.check_switchxy.isChecked() and direction == 3:
+            self.direction = 1
+        elif self.check_switchxy.isChecked() and direction == 2:
+            self.direction = 4
+        elif self.check_switchxy.isChecked() and direction == 4:
+            self.direction = 2  
+
         if self.check_reverse_x.isChecked() and direction ==1:
-            direction = 2
+            self.direction = 2
         elif self.check_reverse_x.isChecked() and direction ==2:
-            direction = 1
+            self.direction = 1
         elif self.check_reverse_y.isChecked() and direction ==3:
-            direction = 4
+            self.direction = 4
         elif self.check_reverse_y.isChecked() and direction ==4:
-            direction = 3  
-        
-            
+            self.direction = 3  
+
         msg = ''
-        if direction == 1:
+        if self.direction == 1:
             msg +='PR-%s' %('{:f}'.format(Ui_MainWindow.speed)) + '\r\n'
             if x_axis.is_open:
                 loop.call_soon(write_x, msg)
 
-        elif direction == 2:
+        elif self.direction == 2:
             msg +='PR%s' %('{:f}'.format(Ui_MainWindow.speed)) + '\r\n'
             if x_axis.is_open:
                 loop.call_soon(write_x, msg)
 
-        elif direction == 3:
+        elif self.direction == 3:
             msg +='PR%s' %('{:f}'.format(Ui_MainWindow.speed)) + '\r\n'
             if y_axis.is_open:
                 loop.call_soon(write_y, msg)
 
-        elif direction == 4:
+        elif self.direction == 4:
             msg +='PR%s' %('{:f}'.format(Ui_MainWindow.speed)) + '\r\n'
             if y_axis.is_open:
                 loop.call_soon(write_y, msg)
@@ -691,9 +705,9 @@ class Ui_MainWindow(QWidget):
         f = open(filename[0],'r')
         icon = QtGui.QIcon()
         x = f.readline()
-      
+        
         if "####SIA####" not in x :
-            self.show_popup_wrong_file()
+            self.messagebar("Please only try to use SIA files")
             print(x)
             return
         
@@ -719,10 +733,63 @@ class Ui_MainWindow(QWidget):
             item.setIcon(icon)
             self.list_pos.addItem(item)
 
+    def start_routine(self, MainWindow):
+        success = True
+        Ui_MainWindow.running = True
+        if self.button_start.isChecked():
+            self.list_pos.repaint()
+            self.button_start.setText(QtCore.QCoreApplication.translate("MainWindow", "Stop"))
+            self.show_status(True)
+            self.progressBar.setProperty("value", 0)
+            start = time.time()
+            for j in range(self.spinbox_rep_count.value()):
+                if self.button_start.isChecked():
+                    self.update_cycles(index = j)
+                    for i in range(self.list_pos.count()):
+                        if self.button_start.isChecked():
+                            self.update_actions( index = i)
+                            
+                            #Change of background color Animation
+                            if j % 2:
+                                self.list_pos.item(i).setBackground(QColor("#19232d"))
+                            else:
+                                self.list_pos.item(i).setBackground(QColor("#00558d"))
+                            text = self.list_pos.item(i).text()
+                            
+                            if "Sleep" in text:
+                                QtTest.QTest.qWait(int(self.list_pos.item(i).get_t()))
+                            
+                            elif "Sleep" not in text:
+                                loop.call_soon(write_x,self.list_pos.item(i).get_x())
+                                loop.call_soon(write_y,self.list_pos.item(i).get_y())
+                                QtTest.QTest.qWait(int(BUFFER))
+
+                            
+                            self.update_progressbar(start_time = start, total_time = self.total_time())
+                        else:
+                            self.messagebar("Measurement has been aborted")
+                            success = False
+                            Ui_MainWindow.running = False
+                            break
+
+
+            for i in range(self.list_pos.count()):
+                self.list_pos.item(i).setBackground(QColor("#19232d"))
+            if success:
+                self.progressBar.setProperty("value", 100)
+                self.messagebar("Measurement has been successfull")
+            self.button_start.setChecked(False)
+            Ui_MainWindow.running = False
+            self.start_routine("MainWindow")
+
+        else:
+            self.show_status(False)
+            self.button_start.setText(QtCore.QCoreApplication.translate("MainWindow", "Start"))
+            Ui_MainWindow.running = False
 
 
 
-    def closedLoopTranslate(self, MainWindow):
+    def movement_normalize(self, MainWindow):
         Ui_MainWindow.speed = self.step_slider.value()/1000000
     
 
@@ -743,14 +810,15 @@ class Ui_MainWindow(QWidget):
         msg += 'OR' + '\r\n'
         #Set Top Limit
         msg += 'RFP' + '\r\n'
-        if x_axis.is_open:
-            loop.call_soon(write_x, msg)
-        if y_axis.is_open:
+        try:
             loop.call_soon(write_y, msg)
-
+            loop.call_soon(write_x, msg)
+        except Exception as e:
+                self.messagebar(str(e))
+        
 
             
-    def connectY_btn_pressed(self) -> None:
+    def connect_Y(self) -> None:
         """Open serial connection to the specified port."""
         if y_axis.is_open:
             y_axis.close()
@@ -760,28 +828,29 @@ class Ui_MainWindow(QWidget):
             try:
                 y_axis.open()
             except Exception as e:
-                self.show_popup_error(e)
-                self.show_error_message(str(e))
+                self.messagebar(str(e))
                 
             if y_axis.is_open:
                 self.show_control(True)
-                time.sleep(2)
+                time.sleep(1.8)
                 self.movement_init("MainWindow")
-                self.comboBox_y.setEnabled(False)
+                self.messagebar("y - axis connected")
                 loop.create_task(self.read_y())
+                self.comboBox_y.setEnabled(False)
+
         elif not self.pushButton_connectY.isChecked():
             self.comboBox_y.setEnabled(True)
             try:
                 y_axis.close()
+                self.messagebar("y - Axis disconnected")
                 self.show_control(False)
 
             except Exception as e:
-                self.show_popup_error(e)
-                self.show_error_message(str(e))
+                self.messagebar(str(e))
  
 
 
-    def connectX_btn_pressed(self) -> None:
+    def connect_X(self) -> None:
         """Open serial connection to the specified port."""
         if x_axis.is_open:
             x_axis.close()
@@ -791,26 +860,30 @@ class Ui_MainWindow(QWidget):
             try:
                 x_axis.open()
             except Exception as e:
-                self.show_popup_error(e)
-                self.show_error_message(str(e))
+                self.messagebar(str(e))
             if x_axis.is_open:
                 self.show_control(True)
-                time.sleep(2)
+                time.sleep(1.8)
                 self.movement_init("MainWindow")
+                self.messagebar("x - axis connected")
                 self.comboBox_x.setEnabled(False)
                 loop.create_task(self.read_x())
         elif not self.pushButton_connectX.isChecked():
             self.comboBox_x.setEnabled(True)
             try:
                 x_axis.close()
+                self.messagebar("x - Axis disconnected")
                 self.show_control(False)
             except Exception as e:
-                self.show_popup_error(e)
-                self.show_error_message(str(e))
+                self.messagebar(str(e))
 
-    def get_position(self, port) -> None:
+    def get_x_position(self, port) -> None:
         if port.is_open:
             loop.call_soon(write_x, "PA?")
+            
+    def get_y_position(self, port) -> None:
+        if port.is_open:
+            loop.call_soon(write_y, "PA?")
 
 
                 
@@ -823,6 +896,7 @@ class Ui_MainWindow(QWidget):
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap("media/waypoint.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         item.setIcon(icon)
+        item.setFlags(item.flags() | QtCore.Qt.ItemIsEditable)
         #add element to list
         self.list_pos.addItem(item)
         #item = self.list_pos.item(pos_num.num)
@@ -855,49 +929,8 @@ class Ui_MainWindow(QWidget):
             #iterate list position
             next(element_num)
 
-    def start_routine(self, MainWindow):
-        success = True
-        if self.button_start.isChecked():
-            self.list_pos.repaint()
-            self.button_start.setText(QtCore.QCoreApplication.translate("MainWindow", "Stop"))
-            self.show_status(True)
-            self.progressBar.setProperty("value", 0)
-            print("total time %s"%self.total_time())
-            start = time.time()
-            print("start time %s"%start)
-            for j in range(self.spinbox_rep_count.value()):
-                if self.button_start.isChecked():
-                    self.update_cycles(index = j)
-                    for i in range(self.list_pos.count()):
-                        if self.button_start.isChecked():
-                            self.update_actions( index = i)
-                            if j % 2:
-                                self.list_pos.item(i).setBackground(QColor("#19232d"))
-                            else:
-                                self.list_pos.item(i).setBackground(QColor("#00558d"))
-                            text = self.list_pos.item(i).text()
-                            loop.call_soon(write_x,self.list_pos.item(i).get_x())
-                            loop.call_soon(write_y,self.list_pos.item(i).get_y())
-                            print("Going for %s" %self.list_pos.item(i).text())
-                            if "Sleep" in text:
-                                QtTest.QTest.qWait(int(self.list_pos.item(i).get_t()))
-                            self.update_progressbar(start_time = start, total_time = self.total_time())
-                        else:
-                            self.show_popup_abort()
-                            success = False
-                            break
 
 
-            for i in range(self.list_pos.count()):
-                self.list_pos.item(i).setBackground(QColor("#19232d"))
-            if success:
-                self.show_popup_success()
-            self.button_start.setChecked(False)
-            self.start_routine("MainWindow")
-
-        else:
-            self.show_status(False)
-            self.button_start.setText(QtCore.QCoreApplication.translate("MainWindow", "Start"))
 
             
     def show_status(self, show):
@@ -924,29 +957,10 @@ class Ui_MainWindow(QWidget):
         self.step_slider.setVisible(show)
         self.label_step_size.setVisible(show)
 
-    def show_popup_error(self, message):
-        msg = QMessageBox()
-        msg.setWindowTitle("Fatal Error")
-        msg.setText(message)
-        x = msg.exec_()  # this will show our messagebox
-        
-    def show_popup_wrong_file(self):              
-        msg = QMessageBox()
-        msg.setWindowTitle("Wrong file detected")
-        msg.setText("Please only try to use SIA files    ")
-        x = msg.exec_()  # this will show our messagebox
-        
-    def show_popup_success(self):
-        msg = QMessageBox()
-        msg.setWindowTitle("Success")
-        msg.setText("The measurement has been successfull    ")
-        x = msg.exec_()  # this will show our messagebox
-        
-    def show_popup_abort(self):
-        msg = QMessageBox()
-        msg.setWindowTitle("Interruption")
-        msg.setText("The measurement has been interrupted       ")
-        x = msg.exec_()  # this will show our messagebox
+   
+    def messagebar(self, message):
+        MainWindow.statusBar().showMessage(message)
+
 
     def total_time(self)->float:
         total_time=0
@@ -955,6 +969,8 @@ class Ui_MainWindow(QWidget):
                 text = self.list_pos.item(i).text()
                 if "Sleep" in text:
                     total_time += self.list_pos.item(i).get_t()
+                else:
+                    total_time += BUFFER
         return total_time       
         
         
@@ -967,32 +983,47 @@ class Ui_MainWindow(QWidget):
             progress = int(100*(now-start)/total)
             print("now: %s" %(now-start))
             print("total: %s" %(total))
+            self.messagebar(self.show_time_left(start, now, total))
+            
+            
             self.progressBar.setProperty("value", progress)
         
+    def show_time_left(self, start, now, total)->str:
+            time_left =int( -1*(now- start - total ))
+            if time_left < 60 :
+                return "%s seconds to go"%int(time_left)
+            elif time_left >60 and time_left <120:
+                return "%s minute to go"%int(time_left/60) 
+            elif time_left > 120 and time_left < 3600 :
+                return "%s minutes to go"%int(time_left/60)            
+            elif time_left == 3600 :
+                return "%s hour to go"%int(time_left/60)
+            elif time_left > 3600 :
+                return "%s hours to go"%int(time_left/60/60)
+            
+            
     def update_cycles(self, index):
         self.number_cycles.setText(QtCore.QCoreApplication.translate("MainWindow", "%s of %s" %(index+1 ,self.spinbox_rep_count.value())))
         
+ 
     def update_actions(self, index):
         if index +1 < self.list_pos.count():
             nex = self.list_pos.item(index+1).text()
             if "Sleep" in nex:
-                sleep_time = self.list_pos.item(index+1).get_t()/1000
-                self.next.setText(QtCore.QCoreApplication.translate("MainWindow", "Sleep for %s" %sleep_time))            
+                self.next.setText(QtCore.QCoreApplication.translate("MainWindow", nex))            
             elif "Sleep" not in nex:
-                self.next.setText(QtCore.QCoreApplication.translate("MainWindow", "Moving to %s" %nex)) 
+                self.next.setText(QtCore.QCoreApplication.translate("MainWindow", nex)) 
         elif index +1 > self.list_pos.count():
-            nex = "---"
-            self.next.setText(QtCore.QCoreApplication.translate("MainWindow", nex)) 
+            self.next.setText(QtCore.QCoreApplication.translate("MainWindow", "--")) 
 
         cur = self.list_pos.item(index).text()
         
         if "Sleep" in cur:
-            sleep_time = self.list_pos.item(index).get_t()/1000
-            self.now.setText(QtCore.QCoreApplication.translate("MainWindow", "Sleep for %s" %sleep_time))
+            self.now.setText(QtCore.QCoreApplication.translate("MainWindow", cur))
         elif "Sleep" not in cur:
             self.now.setText(QtCore.QCoreApplication.translate("MainWindow", "Moving to %s" %cur))
         
-               
+              
         
         
     def update_spinbox_delay(self, MainWindow):
@@ -1040,7 +1071,8 @@ class Ui_MainWindow(QWidget):
 
         #Set all Texts on Buttons
         self.button_delete_pos.setText(_translate("MainWindow", "Delete Selected"))  
-        self.button_add_delay.setText(_translate("MainWindow", "Add Delay"))       
+        self.button_add_delay.setText(_translate("MainWindow", "Add Delay"))   
+
         self.label_repetitions.setText(_translate("MainWindow", "Repetitions"))
         self.button_start.setText(_translate("MainWindow", "Start"))
         self.label_axis_settings.setText(_translate("MainWindow", "Axis Settings"))
@@ -1054,7 +1086,8 @@ class Ui_MainWindow(QWidget):
 
         self.label_measurement.setText(_translate("MainWindow", "Overall Progress"))
         self.label.setText(_translate("MainWindow", "Cycle"))
-        
+        self.label.setMinimumSize(QtCore.QSize(120, 0))
+
         self.label_step_size.setText(_translate("MainWindow", "Step Size"))
         self.button_smallest.setText(_translate("MainWindow", "smallest"))
         self.button_small.setText(_translate("MainWindow", "small"))
@@ -1142,9 +1175,6 @@ class Ui_MainWindow(QWidget):
         settings.setValue(SETTING_PORT_X_NAME, self.xport)
         settings.setValue(SETTING_PORT_Y_NAME, self.yport)
      
-    #Show a Message Box with the error message.
-    def show_error_message(self, msg: str) -> None:
-        QMessageBox.critical(self, QApplication.applicationName(), str(msg))
 
     #Update COM Ports of X Axis in GUI.
     def update_x_port(self) -> None:
