@@ -161,7 +161,7 @@ class Ui_MainWindow(QWidget):
 
     
     
-    def setupUi(self, MainWindow):
+    def setup_ui(self, MainWindow):
      
         
         MainWindow.setObjectName("MainWindow")
@@ -385,14 +385,9 @@ class Ui_MainWindow(QWidget):
         self.verticalLayout_2.addLayout(self.gridLayout)
         self.label_measurement = QtWidgets.QLabel(self.centralwidget)
         self.label_measurement.setMaximumSize(QtCore.QSize(16777215, 30))
-
         font = QtGui.QFont()
         font.setBold(True)
         font.setWeight(75)
-        
-
-
-        
         self.horizontalLayout_3 = QtWidgets.QHBoxLayout()
         self.horizontalLayout_3.setContentsMargins(-1, -1, -1, 20)
         self.horizontalLayout_3.setObjectName("horizontalLayout_3")
@@ -563,7 +558,7 @@ class Ui_MainWindow(QWidget):
         self.menubar.addAction(self.menuFile.menuAction())
 
         #Update User Interface
-        self.retranslateUi(MainWindow)
+        self.retranslate_ui(MainWindow)
 
         #Connect all the Interfaces to eachother
         self.actionClose.triggered.connect(MainWindow.close)
@@ -573,15 +568,7 @@ class Ui_MainWindow(QWidget):
         self.step_slider.valueChanged['int'].connect(self.step_textbox.setValue)
         self.step_textbox.valueChanged['int'].connect(self.step_slider.setValue)
         self.step_textbox.valueChanged['int'].connect(lambda:self.movement_normalize("MainWindow"))
-
-    
-
-    
-
-
-
         self.spinbox_delay_length.valueChanged.connect(lambda: self.update_spinbox_delay("MainWindow"))
-
         self.button_delete_pos.clicked.connect(lambda:self.list_pos.takeItem(self.list_pos.currentRow()))
         
 
@@ -610,7 +597,7 @@ class Ui_MainWindow(QWidget):
 
         #Start measurement via start-button
         self.button_start.clicked.connect(lambda:self.start_routine("MainWindow"))
-        self.button_start.clicked.connect(lambda:self.show_status(True))
+
         
         self.actionSave.triggered.connect(lambda:self.save_routine())
         self.actionOpen.triggered.connect(lambda:self.open_routine("MainWindow"))
@@ -1062,7 +1049,7 @@ class Ui_MainWindow(QWidget):
 
             
     #Function to add MainWindow titles,labels on buttons, statustips and shortcuts.        
-    def retranslateUi(self, MainWindow):
+    def retranslate_ui(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
         
         #Set all the Titles
@@ -1244,7 +1231,7 @@ if __name__ == "__main__":
     asyncio.set_event_loop(loop)
     MainWindow = QtWidgets.QMainWindow()
     ui = Ui_MainWindow()
-    ui.setupUi(MainWindow)
+    ui.setup_ui(MainWindow)
     MainWindow.show()
     sys.exit(app.exec_())
     
