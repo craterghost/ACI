@@ -171,7 +171,7 @@ class Ui_MainWindow(QWidget):
      
         
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(1800, 722)
+        MainWindow.resize(1650, 600)
         MainWindow.setAutoFillBackground(False)
         
         #Initialization of central widget
@@ -257,7 +257,8 @@ class Ui_MainWindow(QWidget):
         
         #Shear API Spacer
         self.spacer_shear_api = QtWidgets.QLabel(self.centralwidget)
-        self.spacer_shear_api.setPixmap(QtGui.QPixmap("media/shear.jpeg"))
+        self.spacer_shear_api.setPixmap(QtGui.QPixmap("media/shear.png").scaledToWidth(700))
+        
         self.spacer_shear_api.setObjectName("spacer_shear_api")
         self.layout_grid_center.addWidget(self.spacer_shear_api, 0, 2, 1, 1)
         
@@ -265,7 +266,7 @@ class Ui_MainWindow(QWidget):
         self.layout_rightside = QtWidgets.QVBoxLayout()
         self.layout_rightside.setObjectName("layout_rightside")
         
-        #Layout Structure of SIA logo and Axis Settings
+        #Layout Structure of ACI logo and Axis Settings
         self.layout_sia_logo_axis_settings = QtWidgets.QHBoxLayout()
         self.layout_sia_logo_axis_settings.setContentsMargins(-1, -1, -1, 20)
         self.layout_sia_logo_axis_settings.setObjectName("layout_sia_logo_axis_settings")
@@ -341,13 +342,14 @@ class Ui_MainWindow(QWidget):
         self.verticalLayout = QtWidgets.QVBoxLayout()
         self.verticalLayout.setObjectName("verticalLayout")
         
-        #SIA Logo in the Right Corner
+        #ACI Logo in the Right Corner
         self.label_sia = QtWidgets.QLabel(self.centralwidget)
-        self.label_sia.setPixmap(QtGui.QPixmap("media/SIA.png"))
+        self.label_sia.setPixmap(QtGui.QPixmap("media/ACI.png"))
+        #self.label_sia.setMaximumSize(QtCore.QSize(350, 0))
         self.label_sia.setAlignment(QtCore.Qt.AlignCenter)
         self.label_sia.setObjectName("label_sia")
         
-        #Layoutstructure of Axis settings and SIA Logo
+        #Layoutstructure of Axis settings and ACI Logo
         self.verticalLayout.addWidget(self.label_sia)
         self.layout_sia_logo_axis_settings.addLayout(self.verticalLayout)
         self.layout_rightside.addLayout(self.layout_sia_logo_axis_settings)
@@ -669,7 +671,7 @@ class Ui_MainWindow(QWidget):
         name, _  = QtWidgets.QFileDialog.getSaveFileName(self, 'Save Configuration')
         
         file = open(name, "w")
-        file.write("####SIA####\r")
+        file.write("####ACI####\r")
         for j in range(self.spinbox_rep_count.value()):
             for i in range(self.list_pos.count()):
                 
@@ -703,8 +705,8 @@ class Ui_MainWindow(QWidget):
         icon = QtGui.QIcon()
         x = f.readline()
         
-        if "####SIA####" not in x :
-            self.messagebar("Please only try to use SIA files")
+        if "####ACI####" not in x :
+            self.messagebar("Please only try to use ACI files")
             print(x)
             return
         
@@ -1101,7 +1103,7 @@ class Ui_MainWindow(QWidget):
         _translate = QtCore.QCoreApplication.translate
         
         #Set all the Titles
-        MainWindow.setWindowTitle(_translate("MainWindow", "SIA - Shear Interferometer Automation"))
+        MainWindow.setWindowTitle(_translate("MainWindow", "ACI - Automated Chip Inspector"))
         self.menuFile.setTitle(_translate("MainWindow", "File"))
 
         #Set all Texts on Buttons
