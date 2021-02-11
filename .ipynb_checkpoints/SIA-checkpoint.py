@@ -484,6 +484,21 @@ class Ui_MainWindow(QWidget):
         self.layout_arrowkeys.addWidget(self.button_move_right, 2, 2, 1, 1)
 
         
+        self.button_min = QtWidgets.QPushButton(self.centralwidget)
+        self.button_min.setText("")
+        icon7 = QtGui.QIcon()
+        icon7.addPixmap(QtGui.QPixmap("media/min.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        self.button_min.setIcon(icon7)
+        self.button_min.setObjectName("button_min")
+        self.layout_arrowkeys.addWidget(self.button_min, 1, 0, 1, 1)
+        self.button_max = QtWidgets.QPushButton(self.centralwidget)
+        self.button_max.setText("")
+        icon8 = QtGui.QIcon()
+        icon8.addPixmap(QtGui.QPixmap("media/max.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        self.button_max.setIcon(icon8)
+        self.button_max.setObjectName("button_max")
+        self.layout_arrowkeys.addWidget(self.button_max, 1, 2, 1, 1)
+        
         #Button to move left
         self.button_move_left = QtWidgets.QPushButton(self.centralwidget)
         self.button_move_left.setMinimumSize(QtCore.QSize(0, 60))
@@ -982,6 +997,8 @@ class Ui_MainWindow(QWidget):
                 self.step_textbox.setVisible(show)
                 self.step_slider.setVisible(show)
                 self.label_step_size.setVisible(show)
+                self.button_min.setVisible(show)
+                self.button_max.setVisible(show)
         else:                
             self.button_move_up.setVisible(show)
             self.button_move_down.setVisible(show)
@@ -995,7 +1012,8 @@ class Ui_MainWindow(QWidget):
             self.step_textbox.setVisible(show)
             self.step_slider.setVisible(show)
             self.label_step_size.setVisible(show)
-            
+            self.button_min.setVisible(show)
+            self.button_max.setVisible(show)
 
    
     def messagebar(self, message):
