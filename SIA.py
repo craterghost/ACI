@@ -50,7 +50,7 @@ FAST = 4000
 FASTEST = 10000
 
 #Timeout between movements to positions (in s)
-BUFFER = 1
+BUFFER = 4
 #Translation to milliseconds
 BUFFER = BUFFER * 1000
 ###############################################################
@@ -733,6 +733,8 @@ class Ui_MainWindow(QWidget):
             self.list_pos.addItem(item)
 
     def start_routine(self, MainWindow):
+        i=0
+        ii=0
         success = True
         Ui_MainWindow.running = True
         if self.button_start.isChecked():
@@ -758,10 +760,12 @@ class Ui_MainWindow(QWidget):
                             QtTest.QTest.qWait(int(self.list_pos.item(i).get_t()))
                             
                             if "Sleep" not in text:
-                                loop.call_soon(write_x,self.list_pos.item(i).get_x())
-                                loop.call_soon(write_y,self.list_pos.item(i).get_y())
+                               
+                                loop.call_soon(write_x,(" %s" %self.list_pos.item(i).get_x())) 
+                                loop.call_soon(write_y,(" %s" %self.list_pos.item(i).get_y()))                                
 
-                            
+                                #loop.call_soon(write_y,str(self.list_pos.item(i).get_y()))
+
                             self.update_progressbar(start_time = start, total_time = self.total_time())
                         else:
                             success = False
@@ -917,7 +921,7 @@ class Ui_MainWindow(QWidget):
     def save_position(self):
         self.get_x_position(x_axis)
         self.get_y_position(y_axis)
-        QtTest.QTest.qWait(20)
+        QtTest.QTest.qWait(25)
         self.add_position()
                 
 
@@ -1249,6 +1253,7 @@ class Ui_MainWindow(QWidget):
                     text = msg.decode().strip()
                     if "PA" in text:
                         Ui_MainWindow.position.set_x(text)
+                    print('X-Axis %s' %text)    
                 await asyncio.sleep(0)
                 
          
@@ -1260,6 +1265,7 @@ class Ui_MainWindow(QWidget):
                     text = msg.decode().strip()
                     if "PA" in text:
                         Ui_MainWindow.position.set_y(text)
+                    print('Y-Axis %s' %text) 
                 await asyncio.sleep(0)
 
 
