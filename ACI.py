@@ -28,10 +28,7 @@ x_axis = Serial(timeout=0)
 y_axis = Serial(timeout=0)
 
 #Definition of Constants
-
 SER_BAUDRATE = 921600
-#SER_BAUDRATE = 115200
-
 SETTING_PORT_X_NAME = 'port_x_name'
 SETTING_PORT_Y_NAME = 'port_y_name'
 SETTING_MESSAGE = 'message'
@@ -50,7 +47,7 @@ FAST = 4000
 FASTEST = 10000
 
 #Timeout between movements to positions (in s)
-BUFFER = 4
+BUFFER = 1.5
 #Translation to milliseconds
 BUFFER = BUFFER * 1000
 ###############################################################
@@ -161,11 +158,10 @@ class Ui_MainWindow(QWidget):
     minutes = False
     hours = False
     
+    #runttime variable for routines
     running = False
     
 
-
-    
     
     def setup_ui(self, MainWindow):
      
@@ -438,7 +434,8 @@ class Ui_MainWindow(QWidget):
         self.step_slider = QtWidgets.QSlider(self.centralwidget)
         self.step_slider.setMaximum(4800000)
         self.step_slider.setMinimum(1)
-        self.step_slider.setSingleStep(24000)
+        self.step_slider.setValue(200000)
+        self.step_slider.setSingleStep(480000)
         self.step_slider.setOrientation(QtCore.Qt.Horizontal)
         self.step_slider.setObjectName("step_slider")
         self.verticalLayout_4.addWidget(self.step_slider)
@@ -447,6 +444,7 @@ class Ui_MainWindow(QWidget):
         self.step_textbox.setMaximum(4800000)
         self.step_textbox.setMinimum(1)
         self.step_textbox.setSingleStep(48000)
+        self.step_textbox.setValue(200000)
         self.step_textbox.setObjectName("step_textbox")
         self.verticalLayout_4.addWidget(self.step_textbox)
         self.layout_step_sizes = QtWidgets.QHBoxLayout()
@@ -489,6 +487,9 @@ class Ui_MainWindow(QWidget):
         icon7 = QtGui.QIcon()
         icon7.addPixmap(QtGui.QPixmap("media/min.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.button_min.setIcon(icon7)
+        self.button_min.setMinimumSize(QtCore.QSize(0, 60))
+
+        self.button_min.setIconSize(QtCore.QSize(30, 30))
         self.button_min.setObjectName("button_min")
         self.layout_arrowkeys.addWidget(self.button_min, 1, 0, 1, 1)
         self.button_max = QtWidgets.QPushButton(self.centralwidget)
@@ -496,6 +497,8 @@ class Ui_MainWindow(QWidget):
         icon8 = QtGui.QIcon()
         icon8.addPixmap(QtGui.QPixmap("media/max.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.button_max.setIcon(icon8)
+        self.button_max.setIconSize(QtCore.QSize(30, 30))
+        self.button_max.setMinimumSize(QtCore.QSize(0, 60))
         self.button_max.setObjectName("button_max")
         self.layout_arrowkeys.addWidget(self.button_max, 1, 2, 1, 1)
         
@@ -540,6 +543,8 @@ class Ui_MainWindow(QWidget):
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap("media/enter.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.button_save_pos.setIcon(icon)
+        self.button_save_pos.setMinimumSize(QtCore.QSize(0, 60))
+
         self.button_save_pos.setIconSize(QtCore.QSize(40, 40))
         self.button_save_pos.setFlat(False)
         self.button_save_pos.setObjectName("button_save_pos")
@@ -607,6 +612,9 @@ class Ui_MainWindow(QWidget):
         self.button_move_right.clicked.connect(lambda:self.movement(direction=2))
         self.button_move_up.clicked.connect(lambda:self.movement(direction=3))
         self.button_move_down.clicked.connect(lambda:self.movement(direction=4))
+        self.button_min.clicked.connect(lambda:self.movement(direction=5))
+        self.button_max.clicked.connect(lambda:self.movement(direction=6))
+
         
         #Save a position element to the data structure
         self.button_save_pos.clicked.connect(lambda:self.save_position())
@@ -675,6 +683,12 @@ class Ui_MainWindow(QWidget):
             msg +='PR%s' %('{:f}'.format(Ui_MainWindow.speed)) + '\r\n'
             if y_axis.is_open:
                 loop.call_soon(write_y, msg)
+        elif self.direction == 5:
+            loop.call_soon(write_x, 'PA0\r\n')
+            loop.call_soon(write_y, 'PA48\r\n')
+        elif self.direction == 6:
+            loop.call_soon(write_x, 'PA48\r\n')
+            loop.call_soon(write_y, 'PA0\r\n')
 
 
 
@@ -761,15 +775,26 @@ class Ui_MainWindow(QWidget):
             for j in range(self.spinbox_rep_count.value()):
                 if self.button_start.isChecked():
                     self.update_cycles(index = j)
+                    self.list_pos.item(0).setBackground(QColor("#e78200"))
                     for i in range(self.list_pos.count()):
                         if self.button_start.isChecked() and Ui_MainWindow.running:
                             self.update_actions( index = i)
-                            
                             #Change of background color Animation
-                            if j % 2:
-                                self.list_pos.item(i).setBackground(QColor("#19232d"))
-                            else:
-                                self.list_pos.item(i).setBackground(QColor("#00558d"))
+                            if i>0:
+                                self.list_pos.item(i).setBackground(QColor("#e78200"))
+                                if j % 2:
+                                    self.list_pos.item(i-1).setBackground(QColor("#19232d"))
+                                else:                                    
+                                    self.list_pos.item(i-1).setBackground(QColor("#00558d"))
+                                    
+                            if self.spinbox_rep_count.value()>0:
+                                if not j%2 and not j==0 and i == 0:
+                                        self.list_pos.item(self.list_pos.count()-1).setBackground(QColor("#19232d"))         
+
+                                if j%2  and not j==0 and i == 0:
+                                        self.list_pos.item(self.list_pos.count()-1).setBackground(QColor("#00558d"))        
+                                
+                                    
                             text = self.list_pos.item(i).text()
                             
                             QtTest.QTest.qWait(int(self.list_pos.item(i).get_t()))
@@ -783,6 +808,8 @@ class Ui_MainWindow(QWidget):
 
                             self.update_progressbar(start_time = start, total_time = self.total_time())
                         else:
+                            for i in range(self.list_pos.count()):
+                                self.list_pos.item(i).setBackground(QColor("#19232d"))
                             success = False
                             Ui_MainWindow.running = False
                             break
@@ -827,13 +854,19 @@ class Ui_MainWindow(QWidget):
         #Set closed loop mode
         msg += 'OR' + '\r\n'
         #Move to reference point and return
-        msg += 'RFP' + '\r\n'
+        msg += 'RFH' + '\r\n'
+        
+        
         try:
             loop.call_soon(write_y, msg)
             loop.call_soon(write_x, msg)
+            #Starting positions
+            loop.call_soon(write_y, 'PA24.194633')
+            loop.call_soon(write_x, 'PA23.868719')
         except Exception as e:
                 self.messagebar(str(e))
-        
+
+
 
             
     def connect_Y(self) -> None:
@@ -1149,7 +1182,6 @@ class Ui_MainWindow(QWidget):
         self.button_small.setText(_translate("MainWindow", "small"))
         self.button_big.setText(_translate("MainWindow", "big"))
         self.button_biggest.setText(_translate("MainWindow", "biggest"))
-        self.button_save_pos.setText(_translate("MainWindow", "Add Position"))
         self.actionSave.setText(_translate("MainWindow", "Save"))
         self.actionNew.setText(_translate("MainWindow", "New"))
         self.actionOpen.setText(_translate("MainWindow", "Open"))
@@ -1165,18 +1197,31 @@ class Ui_MainWindow(QWidget):
         self.button_move_left.setStatusTip(_translate("MainWindow", "Shortcut: Arrow Left"))
         self.button_move_down.setStatusTip(_translate("MainWindow", "Shortcut: Arrow Down"))
         self.button_move_up.setStatusTip(_translate("MainWindow", "Shortcut: Arrow Up"))
-        self.button_save_pos.setStatusTip(_translate("MainWindow", "Shortcut: Enter"))
+        self.button_save_pos.setStatusTip(_translate("MainWindow", "Save position; Shortcut: Enter"))
         self.comboBox_x.setStatusTip(_translate("MainWindow", "Select Port of x - Axis"))
         self.comboBox_y.setStatusTip(_translate("MainWindow", "Select Port of y - Axis"))
         self.button_delete_pos.setStatusTip(_translate("MainWindow", "Shortcut: del"))
         self.button_start.setStatusTip(_translate("MainWindow", "Shortcut: Space"))        
-        self.button_add_delay.setStatusTip(_translate("MainWindow", "Shortcut: D"))
+        self.button_add_delay.setStatusTip(_translate("MainWindow", "Add Delay; Shortcut: D"))
+        self.button_smallest.setStatusTip(_translate("MainWindow", "Move with smallest Steps; Shortcut: 1"))
+        self.button_small.setStatusTip(_translate("MainWindow", "Move with small Steps; Shortcut: 2"))
+        self.button_big.setStatusTip(_translate("MainWindow", "Move with big Steps; Shortcut: 3"))
+        self.button_biggest.setStatusTip(_translate("MainWindow", "Move with biggest Steps; Shortcut: 4"))
+        self.button_min.setStatusTip(_translate("MainWindow", "Move to Bottom Limit; Shortcut: N"))
+        self.button_max.setStatusTip(_translate("MainWindow", "Move to Top Limit; Shortcut: M"))
+
 
         #Set all the Shortcuts
+        self.button_smallest.setShortcut(_translate("MainWindow", "1"))
+        self.button_small.setShortcut(_translate("MainWindow", "2"))
+        self.button_big.setShortcut(_translate("MainWindow", "3"))
+        self.button_biggest.setShortcut(_translate("MainWindow", "4"))
         self.button_move_left.setShortcut(_translate("MainWindow", "Left"))
         self.button_move_down.setShortcut(_translate("MainWindow", "Down"))
         self.button_move_up.setShortcut(_translate("MainWindow", "Up"))
         self.button_save_pos.setShortcut(_translate("MainWindow", "Return"))
+        self.button_min.setShortcut(_translate("MainWindow", "N"))
+        self.button_max.setShortcut(_translate("MainWindow", "M"))
         self.actionSave.setShortcut(_translate("MainWindow", "Ctrl+S"))
         self.button_move_right.setShortcut(_translate("MainWindow", "Right"))
         self.button_start.setShortcut(_translate("MainWindow", "Space"))

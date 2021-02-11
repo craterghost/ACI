@@ -28,10 +28,7 @@ x_axis = Serial(timeout=0)
 y_axis = Serial(timeout=0)
 
 #Definition of Constants
-
 SER_BAUDRATE = 921600
-#SER_BAUDRATE = 115200
-
 SETTING_PORT_X_NAME = 'port_x_name'
 SETTING_PORT_Y_NAME = 'port_y_name'
 SETTING_MESSAGE = 'message'
@@ -161,11 +158,10 @@ class Ui_MainWindow(QWidget):
     minutes = False
     hours = False
     
+    #runttime variable for routines
     running = False
     
 
-
-    
     
     def setup_ui(self, MainWindow):
      
@@ -330,7 +326,6 @@ class Ui_MainWindow(QWidget):
         self.check_reverse_y = QtWidgets.QCheckBox(self.centralwidget)
         self.check_reverse_y.setMinimumSize(QtCore.QSize(0, 0))
         self.check_reverse_y.setObjectName("check_reverse_y")
-        self.check_reverse_y.setChecked(True)
         self.layout_axis_settings_checkboxes.addWidget(self.check_reverse_y)
         
         #Checkbox for reversing X   
