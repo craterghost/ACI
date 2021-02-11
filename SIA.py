@@ -761,8 +761,8 @@ class Ui_MainWindow(QWidget):
                             
                             if "Sleep" not in text:
                                
-                                loop.call_soon(write_x,(" %s" %self.list_pos.item(i).get_x())) 
-                                loop.call_soon(write_y,(" %s" %self.list_pos.item(i).get_y()))                                
+                                loop.call_soon(write_x,(" %s\r\n" %self.list_pos.item(i).get_x())) 
+                                loop.call_soon(write_y,(" %s\r\n" %self.list_pos.item(i).get_y()))                                
 
                                 #loop.call_soon(write_y,str(self.list_pos.item(i).get_y()))
 
